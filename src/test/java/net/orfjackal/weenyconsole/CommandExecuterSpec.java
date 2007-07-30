@@ -86,34 +86,25 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class TargetWithNumericParameters {
 
         private class TargetMock {
-            public int fooParameter;
-            public double barParameter1;
-            public Double barParameter2;
+            public Integer integer;
 
-            public void foo(int x) {
-                fooParameter = x;
-            }
-
-            public void bar(double y, Double z) {
-                barParameter1 = y;
-                barParameter2 = z;
+            public void integer(Integer integer) {
+                this.integer = integer;
             }
         }
 
         private TargetMock target;
 
-//        public Object create() throws CommandNotFoundException {
-//            target = new TargetMock();
-//            CommandExecuter exec = new CommandExecuter(target);
-//            exec.execute("foo 1");
-//            exec.execute("bar 2.0 3.5");
-//            return null;
-//        }
-//
-//        public void shouldConvertStringsToInts() {
-//            specify(target.fooParameter, should.equal(1));
-//        }
+        public Object create() throws CommandNotFoundException {
+            target = new TargetMock();
+            CommandExecuter exec = new CommandExecuter(target);
+            exec.execute("integer 1");
+            return null;
+        }
 
+        public void shouldConvertStringsToIntegers() {
+            specify(target.integer, should.equal(1));
+        }
     }
 }
 

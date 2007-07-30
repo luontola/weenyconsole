@@ -1,5 +1,6 @@
 package net.orfjackal.weenyconsole;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -17,25 +18,34 @@ public class CommandExecuter {
 
     public void execute(String command) throws CommandNotFoundException {
         String[] words = command.split(" ");
-
-        Object[] parameters = new Object[words.length - 1];
-        System.arraycopy(words, 1, parameters, 0, parameters.length);
-
-        Class[] parameterTypes = new Class[words.length - 1];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            parameterTypes[i] = String.class;
-        }
         try {
-            String methodName = words[0];
-            Method method = target.getClass().getMethod(methodName, parameterTypes);
-            method.invoke(target, parameters);
+            Method[] methods = target.getClass().getMethods();
+            for (Method method : methods) {
+                if (method.getName().equals(words[0])) {
+                    Class<?>[] types = method.getParameterTypes();
+                    Object[] parameters = new Object[words.length - 1];
 
-        } catch (NoSuchMethodException e) {
-            throw new CommandNotFoundException(command, e);
+                    for (int i = 0; i < types.length; i++) {
+                        Class<?> type = types[i];
+                        String word = words[i + 1];
+                        Constructor<?> constructor = type.getConstructor(String.class);
+                        parameters[i] = constructor.newInstance(word);
+                    }
+
+                    method.invoke(target, parameters);
+                    return;
+                }
+            }
+            throw new CommandNotFoundException(command);
+
         } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
         }
     }
 }
