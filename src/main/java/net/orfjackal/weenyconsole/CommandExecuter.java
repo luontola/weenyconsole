@@ -26,12 +26,8 @@ public class CommandExecuter {
                     Object[] parameters = new Object[words.length - 1];
 
                     for (int i = 0; i < types.length; i++) {
-                        Class<?> type = types[i];
-                        String word = words[i + 1];
-                        Constructor<?> constructor = type.getConstructor(String.class);
-                        parameters[i] = constructor.newInstance(word);
+                        parameters[i] = convertToType(words[i + 1], types[i]);
                     }
-
                     method.invoke(target, parameters);
                     return;
                 }
@@ -47,5 +43,37 @@ public class CommandExecuter {
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Object convertToType(String sourceValue, Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (targetType.isPrimitive()) {
+            targetType = primitiveToWrapperType(targetType.getName());
+        }
+        Constructor<?> constructor = targetType.getConstructor(String.class);
+        return constructor.newInstance(sourceValue);
+    }
+
+    private static Class<?> primitiveToWrapperType(String name) {
+        Class wrapper;
+        if (name.equals("boolean")) {
+            wrapper = Boolean.class;
+        } else if (name.equals("byte")) {
+            wrapper = Byte.class;
+        } else if (name.equals("char")) {
+            wrapper = Character.class;
+        } else if (name.equals("short")) {
+            wrapper = Short.class;
+        } else if (name.equals("int")) {
+            wrapper = Integer.class;
+        } else if (name.equals("long")) {
+            wrapper = Long.class;
+        } else if (name.equals("float")) {
+            wrapper = Float.class;
+        } else if (name.equals("double")) {
+            wrapper = Double.class;
+        } else {
+            throw new IllegalArgumentException(name);
+        }
+        return wrapper;
     }
 }

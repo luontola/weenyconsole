@@ -86,10 +86,20 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class TargetWithNumericParameters {
 
         private class TargetMock {
-            public Integer integer;
+            public Integer integerValue;
+            private Double doubleValue;
+            public int intValue;
 
-            public void integer(Integer integer) {
-                this.integer = integer;
+            public void integer(Integer x) {
+                integerValue = x;
+            }
+
+            public void double_(Double x) {
+                doubleValue = x;
+            }
+
+            public void int_(int x) {
+                intValue = x;
             }
         }
 
@@ -99,11 +109,21 @@ public class CommandExecuterSpec extends Specification<Object> {
             target = new TargetMock();
             CommandExecuter exec = new CommandExecuter(target);
             exec.execute("integer 1");
+            exec.execute("double_ 2.5");
+            exec.execute("int_ 3");
             return null;
         }
 
         public void shouldConvertStringsToIntegers() {
-            specify(target.integer, should.equal(1));
+            specify(target.integerValue, should.equal(1));
+        }
+
+        public void shouldConvertStringsToDoubles() {
+            specify(target.doubleValue, should.equal(2.5));
+        }
+
+        public void shouldConvertStringsToPrimitives() {
+            specify(target.intValue, should.equal(3));
         }
     }
 }
