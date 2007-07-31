@@ -113,6 +113,22 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("foo col1\\tcol2");
             specify(target.fooParameter, should.equal("col1\tcol2"));
         }
+
+        public void shouldComplainAboutInvalidUseOfDoubleQuotes() throws CommandNotFoundException {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo \"not properly quoted");
+                }
+            }, should.raise(IllegalArgumentException.class));
+        }
+
+        public void shouldComplainAboutInvalidUseOfTheEscapeCharacter() throws CommandNotFoundException {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo escape_char_has_nothing_to_escape\\");
+                }
+            }, should.raise(IllegalArgumentException.class));
+        }
     }
 
     public class CommandsWithNumericParameters {
