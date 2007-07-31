@@ -179,10 +179,20 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class MultiWordCommands {
 
         private class TargetMock {
-            public int fooBarExecuted;
+            public int methodOneExecuted;
+            public int methodOneMoreExecuted;
+            public int methodTwoValue;
 
-            public void fooBar() {
-                fooBarExecuted++;
+            public void methodOne() {
+                methodOneExecuted++;
+            }
+
+            public void methodOneMore() {
+                methodOneMoreExecuted++;
+            }
+
+            public void methodTwo(int x) {
+                methodTwoValue = x;
             }
         }
 
@@ -195,9 +205,19 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallAMethodWithAllWordsMentioned() throws CommandNotFoundException {
-            exec.execute("foo bar");
-            specify(target.fooBarExecuted, should.equal(1));
+        public void shouldCallAMethodWithAllTheWordsInItsName() throws CommandNotFoundException {
+            exec.execute("method one");
+            specify(target.methodOneExecuted, should.equal(1));
+        }
+
+        public void shouldSupportTheUseOfParameters() throws CommandNotFoundException {
+            exec.execute("method two 42");
+            specify(target.methodTwoValue, should.equal(42));
+        }
+
+        public void shouldSupportOverloadingOfCommands() throws CommandNotFoundException {
+            exec.execute("method one more");
+            specify(target.methodOneMoreExecuted, should.equal(1));
         }
     }
 }
