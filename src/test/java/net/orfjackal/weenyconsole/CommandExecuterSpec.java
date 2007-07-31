@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 @RunWith(JDaveRunner.class)
 public class CommandExecuterSpec extends Specification<Object> {
 
-    public class TargetWithNoParameters {
+    public class TargetTakesNoParameters {
 
         private class TargetMock {
             public int fooExecuted = 0;
@@ -31,12 +31,12 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallTheMethodWithTheRightName() throws CommandNotFoundException {
+        public void shouldCallAMethodWithTheSameName() throws CommandNotFoundException {
             exec.execute("foo");
             specify(target.fooExecuted, should.equal(1));
         }
 
-        public void wrongCommandShouldDoNothingAndRaiseAnException() {
+        public void onWrongCommandShouldRaiseAnExceptionAndCallNothing() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("bar");
@@ -46,7 +46,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    public class TargetWithStringParameters {
+    public class TargetTakesStringParameters {
 
         private class TargetMock {
             public String fooParameter;
@@ -73,7 +73,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldPassOnTheParameter() {
+        public void shouldPassOnASingleParameter() {
             specify(target.fooParameter, should.equal("x"));
         }
 
@@ -83,7 +83,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    public class TargetWithNumericParameters {
+    public class TargetTakesNumericParameters {
 
         private class TargetMock {
             public Integer integerValue;
