@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,31 +22,15 @@ public class CommandExecuter {
     public void execute(String command) throws CommandNotFoundException {
         try {
             String[] words = separateWords(command);
-
-            List<String> names = new ArrayList<String>();
-            List<String[]> params = new ArrayList<String[]>();
-            for (int wordsFromStart = words.length; wordsFromStart > 0; wordsFromStart--) {
-                String name1 = combineToMethodName(words, wordsFromStart);
-                if (name1 != null) {
-                    names.add(name1);
-                    String[] params2 = new String[words.length - wordsFromStart];
-                    System.arraycopy(words, wordsFromStart, params2, 0, params2.length);
-                    params.add(params2);
-                }
-            }
-            List<String> possibleMethodNames = names;
-
+            List<Possibility> possibilities = possibleMethodCalls(words);
             Method[] methods = target.getClass().getMethods();
 
-            for (int i = 0; i < possibleMethodNames.size(); i++) {
-                String name = possibleMethodNames.get(i);
-                String[] parameterWords = params.get(i);
-
+            for (Possibility possible : possibilities) {
                 for (Method method : methods) {
-                    if (methodHasTheRightName(method, name)) {
-                        Object[] parameters = getParametersForMethod(method, parameterWords);
-                        System.out.println("method = " + method);
-                        System.out.println("parameters = " + Arrays.asList(parameters));
+                    if (methodHasTheRightName(method, possible.methodName)) {
+                        Object[] parameters = parametersForMethod(method, possible.parameters);
+//                        System.out.println("method = " + method);
+//                        System.out.println("parameters = " + Arrays.asList(parameters));
                         method.invoke(target, parameters);
                         return;
                     }
@@ -66,10 +49,22 @@ public class CommandExecuter {
         }
     }
 
-    private static Object[] getParametersForMethod(Method method, String[] words) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static List<Possibility> possibleMethodCalls(String[] words) {
+        List<Possibility> possibilities = new ArrayList<Possibility>();
+        for (int wordsFromStart = words.length; wordsFromStart > 0; wordsFromStart--) {
+            String name1 = combineToMethodName(words, wordsFromStart);
+            if (name1 != null) {
+                possibilities.add(new Possibility(name1, words, wordsFromStart));
+            }
+        }
+        return possibilities;
+    }
+
+    private static Object[] parametersForMethod(Method method, String[] words) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?>[] types = method.getParameterTypes();
         Object[] parameters = new Object[words.length];
         for (int i = 0; i < types.length; i++) {
+            // TODO: handle the case when parameter can not be converted (for example convert "one" to int)
             parameters[i] = convertToType(words[i], types[i]);
         }
         return parameters;
@@ -175,5 +170,17 @@ public class CommandExecuter {
             throw new IllegalArgumentException(name);
         }
         return wrapper;
+    }
+
+    private static class Possibility {
+        public String methodName;
+        public String[] parameters;
+
+        public Possibility(String methodName, String[] words, int wordsFromStart) {
+            String[] parameters = new String[words.length - wordsFromStart];
+            System.arraycopy(words, wordsFromStart, parameters, 0, parameters.length);
+            this.methodName = methodName;
+            this.parameters = parameters;
+        }
     }
 }
