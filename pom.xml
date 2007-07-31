@@ -80,7 +80,8 @@
                     <systemProperties>
                         <property>
                             <name>jdave.tools.specdox.format</name>
-                            <value>xml</value>
+                            <value>txt</value>
+                            <!--<value>xml</value>-->
                         </property>
                         <property>
                             <name>jdave.tools.specdox.dir</name>
