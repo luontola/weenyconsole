@@ -53,34 +53,46 @@ public class CommandExecuterSpec extends Specification<Object> {
             public String barParameter1;
             public String barParameter2;
 
-            public void foo(String x) {
-                fooParameter = x;
+            public void foo(String s) {
+                fooParameter = s;
             }
 
-            public void bar(String y, String z) {
-                barParameter1 = y;
-                barParameter2 = z;
+            public void bar(String s1, String s2) {
+                barParameter1 = s1;
+                barParameter2 = s2;
             }
         }
 
         private TargetMock target;
+        private CommandExecuter exec;
 
-        public Object create() throws CommandNotFoundException {
+        public Object create() {
             target = new TargetMock();
-            CommandExecuter exec = new CommandExecuter(target);
-            exec.execute("foo x");
-            exec.execute("bar y z");
+            exec = new CommandExecuter(target);
             return null;
         }
 
-        public void shouldSupportTheUseOfAParameter() {
+        public void shouldSupportTheUseOfAParameter() throws CommandNotFoundException {
+            exec.execute("foo x");
             specify(target.fooParameter, should.equal("x"));
         }
 
-        public void shouldSupportTheUseOfMultipleParameters() {
+        public void shouldSupportTheUseOfMultipleParameters() throws CommandNotFoundException {
+            exec.execute("bar y z");
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
         }
+
+        public void shouldNotCareAboutEmptySpaceBetweenWords() throws CommandNotFoundException {
+            exec.execute(" bar y  z ");
+            specify(target.barParameter1, should.equal("y"));
+            specify(target.barParameter2, should.equal("z"));
+        }
+
+//        public void shouldSupportMultipleWordsInDoubleQuotes() throws CommandNotFoundException {
+//            exec.execute("foo \"two words\"");
+//            specify(target.fooParameter, should.equal("two words"));
+//        }
     }
 
     public class CommandsWithNumericParameters {

@@ -3,6 +3,8 @@ package net.orfjackal.weenyconsole;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Esko Luontola
@@ -17,7 +19,7 @@ public class CommandExecuter {
     }
 
     public void execute(String command) throws CommandNotFoundException {
-        String[] words = command.split(" ");
+        String[] words = separateWords(command);
         try {
             Method[] methods = target.getClass().getMethods();
             for (Method method : methods) {
@@ -45,6 +47,26 @@ public class CommandExecuter {
         }
     }
 
+    private static String[] separateWords(String command) {
+        List<String> words = new ArrayList<String>();
+        String word = "";
+        for (int i = 0; i < command.length(); i++) {
+            char c = command.charAt(i);
+            if (Character.isWhitespace(c)) {
+                if (word.length() > 0) {
+                    words.add(word);
+                }
+                word = "";
+            } else {
+                word = word + c;
+            }
+        }
+        if (word.length() > 0) {
+            words.add(word);
+        }
+        return words.toArray(new String[words.size()]);
+    }
+
     private static Object convertToType(String sourceValue, Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (targetType.isPrimitive()) {
             targetType = primitiveToWrapperType(targetType.getName());
@@ -54,7 +76,7 @@ public class CommandExecuter {
     }
 
     private static Class<?> primitiveToWrapperType(String name) {
-        Class wrapper;
+        Class<?> wrapper;
         if (name.equals("boolean")) {
             wrapper = Boolean.class;
         } else if (name.equals("byte")) {
