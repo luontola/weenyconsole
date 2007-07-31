@@ -93,6 +93,26 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("foo \"two words\"");
             specify(target.fooParameter, should.equal("two words"));
         }
+
+        public void shouldSupportMultipleWordsUsingTheEscapeCharacter() throws CommandNotFoundException {
+            exec.execute("foo two\\ words");
+            specify(target.fooParameter, should.equal("two words"));
+        }
+
+        public void shouldSupportMixingDoubleQuotesAndTheEscapeCharacter() throws CommandNotFoundException {
+            exec.execute("foo \"escape char is \\\\ and quote char is \\\"\"");
+            specify(target.fooParameter, should.equal("escape char is \\ and quote char is \""));
+        }
+
+        public void shouldSupportNewlineCharacter() throws CommandNotFoundException {
+            exec.execute("foo line1\\nline2");
+            specify(target.fooParameter, should.equal("line1\nline2"));
+        }
+
+        public void shouldSupportTabCharacter() throws CommandNotFoundException {
+            exec.execute("foo col1\\tcol2");
+            specify(target.fooParameter, should.equal("col1\tcol2"));
+        }
     }
 
     public class CommandsWithNumericParameters {

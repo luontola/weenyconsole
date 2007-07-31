@@ -51,12 +51,24 @@ public class CommandExecuter {
     }
 
     private static String[] separateWords(String command) {
+        System.out.println("CommandExecuter.separateWords");
         List<String> words = new ArrayList<String>();
         String word = "";
+        boolean escaped = false;
         boolean insideQuotes = false;
         for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);
-            if (c == '"') {
+            if (escaped) {
+                if (c == 'n') {
+                    c = '\n';
+                } else if (c == 't') {
+                    c = '\t';
+                }
+                word = word + c;
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == '"') {
                 insideQuotes = !insideQuotes;
             } else if (Character.isWhitespace(c) && !insideQuotes) {
                 if (word.length() > 0) {
