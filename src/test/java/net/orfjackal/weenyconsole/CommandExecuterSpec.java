@@ -152,27 +152,53 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         private TargetMock target;
+        private CommandExecuter exec;
 
         public Object create() throws CommandNotFoundException {
             target = new TargetMock();
-            CommandExecuter exec = new CommandExecuter(target);
-            exec.execute("integer 1");
-            exec.execute("double_ 2.5");
-            exec.execute("int_ 3");
+            exec = new CommandExecuter(target);
             return null;
         }
 
-        public void shouldSupportTheUseOfIntegerObjects() {
+        public void shouldSupportTheUseOfIntegerObjects() throws CommandNotFoundException {
+            exec.execute("integer 1");
             specify(target.integerValue, should.equal(1));
         }
 
-        public void shouldSupportTheUseOfDoubleObjects() {
+        public void shouldSupportTheUseOfDoubleObjects() throws CommandNotFoundException {
+            exec.execute("double_ 2.5");
             specify(target.doubleValue, should.equal(2.5));
         }
 
-        public void shouldSupportTheUsePrimitiveTypes() {
+        public void shouldSupportTheUsePrimitiveTypes() throws CommandNotFoundException {
+            exec.execute("int_ 3");
             specify(target.intValue, should.equal(3));
         }
+    }
+
+    public class MultiWordCommands {
+
+        private class TargetMock {
+            public int fooBarExecuted;
+
+            public void fooBar() {
+                fooBarExecuted++;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+//        public void shouldCallAMethodWithAllWordsMentioned() throws CommandNotFoundException {
+//            exec.execute("foo bar");
+//            specify(target.fooBarExecuted, should.equal(1));
+//        }
     }
 }
 
