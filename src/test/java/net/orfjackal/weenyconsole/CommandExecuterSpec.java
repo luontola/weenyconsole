@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 @RunWith(JDaveRunner.class)
 public class CommandExecuterSpec extends Specification<Object> {
 
-    public class TargetTakesNoParameters {
+    public class CommandsWithNoParameters {
 
         private class TargetMock {
             public int fooExecuted = 0;
@@ -31,12 +31,12 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallAMethodWithTheSameName() throws CommandNotFoundException {
+        public void shouldCallAMethodWithTheSameNameAsTheCommand() throws CommandNotFoundException {
             exec.execute("foo");
             specify(target.fooExecuted, should.equal(1));
         }
 
-        public void onWrongCommandShouldRaiseAnExceptionAndCallNothing() {
+        public void shouldRaiseAnExceptionOnAnUnknownCommand() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("bar");
@@ -46,7 +46,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    public class TargetTakesStringParameters {
+    public class CommandsWithStringParameters {
 
         private class TargetMock {
             public String fooParameter;
@@ -73,17 +73,17 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldPassOnASingleParameter() {
+        public void shouldSupportTheUseOfAParameter() {
             specify(target.fooParameter, should.equal("x"));
         }
 
-        public void shouldPassOnMultipleParameters() {
+        public void shouldSupportTheUseOfMultipleParameters() {
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
         }
     }
 
-    public class TargetTakesNumericParameters {
+    public class CommandsWithNumericParameters {
 
         private class TargetMock {
             public Integer integerValue;
@@ -114,15 +114,15 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldConvertStringsToIntegers() {
+        public void shouldSupportTheUseOfIntegerObjects() {
             specify(target.integerValue, should.equal(1));
         }
 
-        public void shouldConvertStringsToDoubles() {
+        public void shouldSupportTheUseOfDoubleObjects() {
             specify(target.doubleValue, should.equal(2.5));
         }
 
-        public void shouldConvertStringsToPrimitives() {
+        public void shouldSupportTheUsePrimitiveTypes() {
             specify(target.intValue, should.equal(3));
         }
     }
