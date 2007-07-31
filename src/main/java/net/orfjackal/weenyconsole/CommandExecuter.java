@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,15 +23,31 @@ public class CommandExecuter {
     public void execute(String command) throws CommandNotFoundException {
         try {
             String[] words = separateWords(command);
-            List<String> possibleMethodNames = possibleMethodNames(words);
+
+            List<String> names = new ArrayList<String>();
+            List<String[]> params = new ArrayList<String[]>();
+            for (int wordsFromStart = words.length; wordsFromStart > 0; wordsFromStart--) {
+                String name1 = combineToMethodName(words, wordsFromStart);
+                if (name1 != null) {
+                    names.add(name1);
+                    String[] params2 = new String[words.length - wordsFromStart];
+                    System.arraycopy(words, wordsFromStart, params2, 0, params2.length);
+                    params.add(params2);
+                }
+            }
+            List<String> possibleMethodNames = names;
+
             Method[] methods = target.getClass().getMethods();
 
-            for (String name : possibleMethodNames) {
+            for (int i = 0; i < possibleMethodNames.size(); i++) {
+                String name = possibleMethodNames.get(i);
+                String[] parameterWords = params.get(i);
+
                 for (Method method : methods) {
                     if (methodHasTheRightName(method, name)) {
-                        Object[] parameters = getParametersForMethod(method, words);
-//                        System.out.println("method = " + method);
-//                        System.out.println("parameters = " + Arrays.asList(parameters));
+                        Object[] parameters = getParametersForMethod(method, parameterWords);
+                        System.out.println("method = " + method);
+                        System.out.println("parameters = " + Arrays.asList(parameters));
                         method.invoke(target, parameters);
                         return;
                     }
@@ -51,9 +68,9 @@ public class CommandExecuter {
 
     private static Object[] getParametersForMethod(Method method, String[] words) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?>[] types = method.getParameterTypes();
-        Object[] parameters = new Object[words.length - 1];
+        Object[] parameters = new Object[words.length];
         for (int i = 0; i < types.length; i++) {
-            parameters[i] = convertToType(words[i + 1], types[i]);
+            parameters[i] = convertToType(words[i], types[i]);
         }
         return parameters;
     }
@@ -62,20 +79,9 @@ public class CommandExecuter {
         return method.getName().equals(name);
     }
 
-    private static List<String> possibleMethodNames(String[] words) {
-        List<String> names = new ArrayList<String>();
-        for (int i = words.length; i > 0; i--) {
-            String name = combineToMethodName(words, i);
-            if (name != null) {
-                names.add(name);
-            }
-        }
-        return names;
-    }
-
-    private static String combineToMethodName(String[] words, int wordCount) {
+    private static String combineToMethodName(String[] words, int wordsFromStart) {
         String methodName = "";
-        for (int i = 0; i < wordCount; i++) {
+        for (int i = 0; i < wordsFromStart; i++) {
             String word = words[i];
             if (i > 0) {
                 word = capitalize(word);

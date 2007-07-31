@@ -195,10 +195,10 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-//        public void shouldCallAMethodWithAllWordsMentioned() throws CommandNotFoundException {
-//            exec.execute("foo bar");
-//            specify(target.fooBarExecuted, should.equal(1));
-//        }
+        public void shouldCallAMethodWithAllWordsMentioned() throws CommandNotFoundException {
+            exec.execute("foo bar");
+            specify(target.fooBarExecuted, should.equal(1));
+        }
     }
 }
 
