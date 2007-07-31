@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,6 +31,8 @@ public class CommandExecuter {
                     for (int i = 0; i < types.length; i++) {
                         parameters[i] = convertToType(words[i + 1], types[i]);
                     }
+                    System.out.println("method = " + method);
+                    System.out.println("parameters = " + Arrays.asList(parameters));
                     method.invoke(target, parameters);
                     return;
                 }
@@ -50,9 +53,12 @@ public class CommandExecuter {
     private static String[] separateWords(String command) {
         List<String> words = new ArrayList<String>();
         String word = "";
+        boolean insideQuotes = false;
         for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);
-            if (Character.isWhitespace(c)) {
+            if (c == '"') {
+                insideQuotes = !insideQuotes;
+            } else if (Character.isWhitespace(c) && !insideQuotes) {
                 if (word.length() > 0) {
                     words.add(word);
                 }

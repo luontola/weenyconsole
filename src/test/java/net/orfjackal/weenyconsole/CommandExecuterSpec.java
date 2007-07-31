@@ -89,10 +89,10 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.barParameter2, should.equal("z"));
         }
 
-//        public void shouldSupportMultipleWordsInDoubleQuotes() throws CommandNotFoundException {
-//            exec.execute("foo \"two words\"");
-//            specify(target.fooParameter, should.equal("two words"));
-//        }
+        public void shouldSupportMultipleWordsInDoubleQuotes() throws CommandNotFoundException {
+            exec.execute("foo \"two words\"");
+            specify(target.fooParameter, should.equal("two words"));
+        }
     }
 
     public class CommandsWithNumericParameters {
