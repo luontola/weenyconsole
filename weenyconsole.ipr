@@ -84,21 +84,6 @@
         <option name="myName" value="Project Default" />
         <option name="myLocal" value="false" />
         <used_levels>
-          <info color="1ea000">
-            <option name="myName" value="INFO" />
-            <option name="myVal" value="200" />
-            <option name="myExternalName" value="INFO" />
-            <option name="myDefaultAttributes">
-              <value>
-                <option name="FOREGROUND" />
-                <option name="BACKGROUND" />
-                <option name="FONT_TYPE" value="0" />
-                <option name="EFFECT_COLOR" />
-                <option name="EFFECT_TYPE" value="0" />
-                <option name="ERROR_STRIPE_COLOR" value="1ea000" />
-              </value>
-            </option>
-          </info>
           <error>
             <option name="myName" value="ERROR" />
             <option name="myVal" value="400" />
@@ -116,14 +101,6 @@
             <option name="myVal" value="100" />
           </server>
         </used_levels>
-        <inspection_tool class="IndexOfReplaceableByContains" level="WARNING" enabled="true" />
-        <inspection_tool class="EnumerationCanBeIteration" level="WARNING" enabled="true" />
-        <inspection_tool class="RawUseOfParameterizedType" level="WARNING" enabled="true">
-          <option name="ignoreObjectConstruction" value="true" />
-          <option name="ignoreTypeCasts" value="false" />
-        </inspection_tool>
-        <inspection_tool class="UnnecessaryUnboxing" level="INFO" enabled="true" />
-        <inspection_tool class="UnnecessaryBoxing" level="INFO" enabled="true" />
       </profile>
     </profiles>
   </component>
