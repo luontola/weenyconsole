@@ -129,6 +129,8 @@ public class CommandExecuterSpec extends Specification<Object> {
                 }
             }, should.raise(IllegalArgumentException.class));
         }
+
+        // TODO: should null parameters be made possible?
     }
 
     public class CommandsWithNumericParameters {
@@ -219,6 +221,79 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("method one more");
             specify(target.methodOneMoreExecuted, should.equal(1));
         }
+    }
+
+
+    public class CommandsWithPossiblyConflictingNamesAndParameters {
+
+        private class TargetMock {
+            public int methodOneExecuted;
+            public String methodOneValue;
+            public int methodOneMoreExecuted;
+            public Integer twoInt;
+            public Boolean twoBoolean;
+            public Boolean threeBoolean;
+
+            public void one(String more) {
+                methodOneExecuted++;
+                methodOneValue = more;
+            }
+
+            public void oneMore() {
+                methodOneMoreExecuted++;
+            }
+
+            public void two(int x) {
+                twoInt = x;
+            }
+
+            public void two(boolean x) {
+                twoBoolean = x;
+            }
+
+            public void three(boolean x) {
+                threeBoolean = x;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldPrioritizeTheMethodWithTheLongestName() throws CommandNotFoundException {
+            exec.execute("one more");
+            specify(target.methodOneMoreExecuted, should.equal(1));
+            specify(target.methodOneExecuted, should.equal(0));
+            specify(target.methodOneValue, should.equal(null));
+        }
+
+//        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() throws CommandNotFoundException {
+//            exec.execute("two 42");
+//            specify(target.twoInt, should.equal(42));
+//            specify(target.twoBoolean, should.equal(null));
+//        }
+//
+//        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() throws CommandNotFoundException {
+//            exec.execute("two true");
+//            specify(target.twoInt, should.equal(null));
+//            specify(target.twoBoolean, should.equal(true));
+//        }
+
+        public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() throws CommandNotFoundException {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("three not_boolean");
+                }
+            }, should.raise(CommandNotFoundException.class, "three not_boolean"));
+            specify(target.threeBoolean, should.equal(null));
+        }
+
+        // TODO: overloaded methods with different number of parameters
     }
 }
 

@@ -13,4 +13,8 @@ public class CommandNotFoundException extends Exception {
     public CommandNotFoundException(String command, Throwable cause) {
         super(command, cause);
     }
+
+    public String getCommand() {
+        return getMessage();
+    }
 }
