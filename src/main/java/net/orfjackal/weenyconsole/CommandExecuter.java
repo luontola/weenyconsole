@@ -1,5 +1,6 @@
 package net.orfjackal.weenyconsole;
 
+import javax.lang.model.SourceVersion;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,9 +63,40 @@ public class CommandExecuter {
     }
 
     private static List<String> possibleMethodNames(String[] words) {
-        List<String> possibleMethodNames = new ArrayList<String>();
-        possibleMethodNames.add(words[0]);
-        return possibleMethodNames;
+        List<String> names = new ArrayList<String>();
+        for (int i = words.length; i > 0; i--) {
+            String name = combineToMethodName(words, i);
+            if (name != null) {
+                names.add(name);
+            }
+        }
+        return names;
+    }
+
+    private static String combineToMethodName(String[] words, int wordCount) {
+        String methodName = "";
+        for (int i = 0; i < wordCount; i++) {
+            String word = words[i];
+            if (i > 0) {
+                word = capitalize(word);
+            }
+            methodName += word;
+        }
+        if (isJavaMethodIdentifier(methodName)) {
+            return methodName;
+        }
+        return null;
+    }
+
+    /**
+     * @see <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.8">JLS §3.8</a>
+     */
+    private static boolean isJavaMethodIdentifier(String s) {
+        return SourceVersion.isIdentifier(s) && !SourceVersion.isKeyword(s);
+    }
+
+    private static String capitalize(String word) {
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 
     private static String[] separateWords(String command) {
@@ -80,7 +112,7 @@ public class CommandExecuter {
                 } else if (c == 't') {
                     c = '\t';
                 }
-                word = word + c;
+                word += c;
                 escaped = false;
             } else if (c == '\\') {
                 escaped = true;
@@ -92,7 +124,7 @@ public class CommandExecuter {
                 }
                 word = "";
             } else {
-                word = word + c;
+                word += c;
             }
         }
         if (insideQuotes) {
