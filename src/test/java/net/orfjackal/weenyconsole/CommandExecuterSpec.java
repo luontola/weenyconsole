@@ -229,6 +229,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    // TODO: support for enum classes
 
     public class CommandsWithPossiblyConflictingNamesAndParameters {
 
