@@ -45,6 +45,7 @@ public class CommandExecuter {
 
         } catch (IllegalArgumentException e) {
             // method.invoke failed because of invalid parameter types, which should not happen
+            // TODO: fix all who come here
             e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
