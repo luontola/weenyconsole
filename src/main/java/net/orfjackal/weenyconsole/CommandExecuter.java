@@ -117,42 +117,18 @@ public class CommandExecuter {
     }
 
     private static String capitalize(String word) {
-        if (word == null) {
-            return null;
-        }
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 
     private static String[] separateWords(String command) {
-        List<String> words = new ArrayList<String>();
+        List<String> finishedWords = new ArrayList<String>();
         String word = "";
         boolean escaped = false;
         boolean insideQuotes = false;
-        for (int i = 0; i < command.length(); i++) {
-            char c = command.charAt(i);
+        for (int currentPos = 0; currentPos < command.length(); currentPos++) {
+            char c = command.charAt(currentPos);
             if (escaped) {
-                if (c == ' ') {
-                    c = ' ';
-                } else if (c == '\\') {
-                    c = '\\';
-                } else if (c == '"') {
-                    c = '"';
-                } else if (c == 'n') {
-                    c = '\n';
-                } else if (c == 't') {
-                    c = '\t';
-                } else if (c == '0') {
-                    if (word.length() == 0) {
-                        words.add(null);
-                        escaped = false;
-                        continue;
-                    } else {
-                        throw new MalformedCommandException(command, "null not allowed here", i);
-                    }
-                } else {
-                    throw new MalformedCommandException(command, "escape sequence expected", i);
-                }
-                word += c;
+                word = unescape(c, word, finishedWords, command, currentPos);
                 escaped = false;
             } else if (c == '\\') {
                 escaped = true;
@@ -160,11 +136,11 @@ public class CommandExecuter {
                 insideQuotes = !insideQuotes;
             } else if (Character.isWhitespace(c) && !insideQuotes) {
                 if (word.length() > 0) {
-                    words.add(word);
+                    finishedWords.add(word);
                 }
                 word = "";
             } else {
-                word += c;
+                word = word + c;
             }
         }
         if (insideQuotes) {
@@ -174,9 +150,36 @@ public class CommandExecuter {
             throw new MalformedCommandException(command, "escape sequence expected", command.length());
         }
         if (word.length() > 0) {
-            words.add(word);
+            finishedWords.add(word);
         }
-        return words.toArray(new String[words.size()]);
+        return finishedWords.toArray(new String[finishedWords.size()]);
+    }
+
+    private static String unescape(char escaped, String currentWord, List<String> finishedWords, String command, int currentPos) {
+        Character unescaped;
+        if (escaped == ' ') {
+            unescaped = ' ';
+        } else if (escaped == '\\') {
+            unescaped = '\\';
+        } else if (escaped == '"') {
+            unescaped = '"';
+        } else if (escaped == 'n') {
+            unescaped = '\n';
+        } else if (escaped == 't') {
+            unescaped = '\t';
+        } else if (escaped == '0') {
+            unescaped = null;
+        } else {
+            throw new MalformedCommandException(command, "escape sequence expected", currentPos);
+        }
+        if (unescaped != null) {
+            currentWord = currentWord + unescaped;
+        } else if (currentWord.length() == 0) {
+            finishedWords.add(null);
+        } else {
+            throw new MalformedCommandException(command, "null not allowed here", currentPos);
+        }
+        return currentWord;
     }
 
     private static Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
