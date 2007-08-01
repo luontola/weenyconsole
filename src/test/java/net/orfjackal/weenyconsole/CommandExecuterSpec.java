@@ -120,10 +120,22 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooParameter, should.equal("col1\tcol2"));
         }
 
-        public void shouldSupportNullCharacter() {
+        public void shouldSupportNullAsAParameter() {
             target.fooParameter = "initial value";
             exec.execute("foo \\0");
             specify(target.fooParameter, should.equal(null));
+        }
+
+        public void shouldNotAllowNullAsPartOfAWord() {
+            target.fooParameter = "initial value";
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo aa\\0aa");
+                }
+            }, should.raise(MalformedCommandException.class, "" +
+                    "null not allowed here: foo aa\\0aa\n" +
+                    "                              ^"));
+            specify(target.fooParameter, should.equal("initial value"));
         }
 
         public void shouldComplainAboutMissingDoubleQuotes() {

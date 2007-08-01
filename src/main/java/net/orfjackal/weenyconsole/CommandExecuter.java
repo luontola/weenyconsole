@@ -47,6 +47,7 @@ public class CommandExecuter {
             throw new CommandNotFoundException(command);
 
         } catch (CommandExecutionException e) {
+            System.err.println(e.getMessage());
             throw e;
         } catch (RuntimeException e) {
             // method.invoke failed because of invalid parameter types (IllegalArgumentException), which should not happen
@@ -140,10 +141,14 @@ public class CommandExecuter {
                     c = '\n';
                 } else if (c == 't') {
                     c = '\t';
-                } else if (c == '0' && word.length() == 0) {
-                    words.add(null);
-                    escaped = false;
-                    continue;
+                } else if (c == '0') {
+                    if (word.length() == 0) {
+                        words.add(null);
+                        escaped = false;
+                        continue;
+                    } else {
+                        throw new MalformedCommandException(command, "null not allowed here", i);
+                    }
                 } else {
                     throw new MalformedCommandException(command, "escape sequence expected", i);
                 }
