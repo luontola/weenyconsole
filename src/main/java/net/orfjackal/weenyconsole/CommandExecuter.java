@@ -38,18 +38,22 @@ public class CommandExecuter {
             throw new CommandNotFoundException(command);
 
         } catch (CommandExecutionException e) {
+            // invalid command
             System.err.println(e.getMessage());
             throw e;
         } catch (RuntimeException e) {
-            // method.invoke failed because of invalid parameter types (IllegalArgumentException), which should not happen
-            // TODO: fix all who come here
-            System.err.println("TODO: FIX THE CAUSE OF THIS EXCEPTION");
+            // should never happen - caused by a bug in this program
             e.printStackTrace();
             throw new CommandExecutionException(command, "internal error", e);
         } catch (IllegalAccessException e) {
+            // should never happen - caused by restricted Java VM
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            // target method threw an exception
+            Throwable t = e.getTargetException();
+            t.printStackTrace();
+            // TODO: create a new exception type for this
+            throw new CommandExecutionException(command, "command threw an exception: " + t.getMessage(), t);
         }
     }
 
