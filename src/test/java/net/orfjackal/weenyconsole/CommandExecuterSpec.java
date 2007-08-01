@@ -376,7 +376,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.booleanCaseValue, should.equal(null));
         }
 
-        public void shouldNotConvertNullValuesToBePartOfTheMethodName() {
+        public void shouldNotMistakeNullValuesToBePartOfTheMethodName() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("null check \\0");
