@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,8 +30,8 @@ public class CommandExecuter {
                     if (methodHasTheRightName(method, possible.methodName)) {
                         Object[] parameters = parametersForMethod(method, possible.parameters);
                         if (parameters != null) {
-                            System.out.println("method = " + method);
-                            System.out.println("parameters = " + Arrays.asList(parameters));
+//                            System.out.println("method = " + method);
+//                            System.out.println("parameters = " + Arrays.asList(parameters));
                             method.invoke(target, parameters);
                             return;
                         }
@@ -44,10 +43,6 @@ public class CommandExecuter {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -63,7 +58,7 @@ public class CommandExecuter {
         return possibilities;
     }
 
-    private static Object[] parametersForMethod(Method method, String[] words) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private static Object[] parametersForMethod(Method method, String[] words) {
         try {
             Class<?>[] types = method.getParameterTypes();
             Object[] parameters = new Object[words.length];
@@ -73,7 +68,7 @@ public class CommandExecuter {
             return parameters;
 
         } catch (NotAMatchException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }
@@ -148,21 +143,21 @@ public class CommandExecuter {
         return words.toArray(new String[words.size()]);
     }
 
-    private static Object convertToType(String sourceValue, Class<?> targetType) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NotAMatchException {
+    private static Object convertToType(String sourceValue, Class<?> targetType) throws NotAMatchException {
         if (targetType.isPrimitive()) {
             targetType = primitiveToWrapperType(targetType.getName());
         }
         if (targetType.equals(Boolean.class)
                 && !sourceValue.equals(Boolean.toString(true))
                 && !sourceValue.equals(Boolean.toString(false))) {
-            // Boolean's constructor would convert "foo" to FALSE, but
-            // we want to have stricter conversions, especially if there
-            // would be an overloaded method with more exact parameters.
             throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
         }
-        // TODO: handle the case when parameter can not be converted (for example convert "one" to int)
-        Constructor<?> constructor = targetType.getConstructor(String.class);
-        return constructor.newInstance(sourceValue);
+        try {
+            Constructor<?> constructor = targetType.getConstructor(String.class);
+            return constructor.newInstance(sourceValue);
+        } catch (Exception e) {
+            throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType, e);
+        }
     }
 
     private static Class<?> primitiveToWrapperType(String name) {

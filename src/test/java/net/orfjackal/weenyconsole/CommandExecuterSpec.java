@@ -44,6 +44,8 @@ public class CommandExecuterSpec extends Specification<Object> {
             }, should.raise(CommandNotFoundException.class, "bar"));
             specify(target.fooExecuted, should.equal(0));
         }
+
+        // TODO: empty command exits silently
     }
 
     public class CommandsWithStringParameters {
@@ -227,33 +229,39 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class CommandsWithPossiblyConflictingNamesAndParameters {
 
         private class TargetMock {
-            public int methodOneExecuted;
-            public String methodOneValue;
-            public int methodOneMoreExecuted;
-            public Integer twoInt;
-            public Boolean twoBoolean;
-            public Boolean threeBoolean;
+            public int oneExecuted;
+            public String oneValue;
+            public int oneMoreExecuted;
+            public Integer constructorErrorValue;
+            public Integer overloadedInt;
+            public Boolean overloadedBoolean;
+            public Boolean booleanCaseValue;
 
             public void one(String more) {
-                methodOneExecuted++;
-                methodOneValue = more;
+                oneExecuted++;
+                oneValue = more;
             }
 
             public void oneMore() {
-                methodOneMoreExecuted++;
+                oneMoreExecuted++;
             }
 
-            public void two(int x) {
-                twoInt = x;
+            public void constructorError(int x) {
+                constructorErrorValue = x;
             }
 
-            public void two(boolean x) {
-                twoBoolean = x;
+            public void overloaded(int x) {
+                overloadedInt = x;
             }
 
-            public void three(boolean x) {
-                threeBoolean = x;
+            public void overloaded(boolean x) {
+                overloadedBoolean = x;
             }
+
+            public void booleanCase(boolean x) {
+                booleanCaseValue = x;
+            }
+
         }
 
         private TargetMock target;
@@ -267,33 +275,54 @@ public class CommandExecuterSpec extends Specification<Object> {
 
         public void shouldPrioritizeTheMethodWithTheLongestName() throws CommandNotFoundException {
             exec.execute("one more");
-            specify(target.methodOneMoreExecuted, should.equal(1));
-            specify(target.methodOneExecuted, should.equal(0));
-            specify(target.methodOneValue, should.equal(null));
+            specify(target.oneMoreExecuted, should.equal(1));
+            specify(target.oneExecuted, should.equal(0));
+            specify(target.oneValue, should.equal(null));
         }
 
-//        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() throws CommandNotFoundException {
-//            exec.execute("two 42");
-//            specify(target.twoInt, should.equal(42));
-//            specify(target.twoBoolean, should.equal(null));
-//        }
-//
-//        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() throws CommandNotFoundException {
-//            exec.execute("two true");
-//            specify(target.twoInt, should.equal(null));
-//            specify(target.twoBoolean, should.equal(true));
-//        }
+        /**
+         * The constructor {@link Integer#Integer(String)} will throw
+         * an exception if the string can not be converted to an integer.
+         * The program must handle silently all exceptions thrown by a constructor.
+         */
+        public void shouldNotCallMethodsToWhichTheParameterCanNotBeConverted() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("constructor error not_int");
+                }
+            }, should.raise(CommandNotFoundException.class, "constructor error not_int"));
+            specify(target.constructorErrorValue, should.equal(null));
+        }
 
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() throws CommandNotFoundException {
+            exec.execute("overloaded 42");
+            specify(target.overloadedInt, should.equal(42));
+            specify(target.overloadedBoolean, should.equal(null));
+        }
+
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() throws CommandNotFoundException {
+            exec.execute("overloaded true");
+            specify(target.overloadedInt, should.equal(null));
+            specify(target.overloadedBoolean, should.equal(true));
+        }
+
+        /**
+         * Boolean's constructor would convert "foo" to FALSE, but
+         * we want to have stricter conversions, especially if there
+         * would be an overloaded method with more exact parameters.
+         */
         public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() throws CommandNotFoundException {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("three not_boolean");
+                    exec.execute("boolean case not_boolean");
                 }
-            }, should.raise(CommandNotFoundException.class, "three not_boolean"));
-            specify(target.threeBoolean, should.equal(null));
+            }, should.raise(CommandNotFoundException.class, "boolean case not_boolean"));
+            specify(target.booleanCaseValue, should.equal(null));
         }
 
         // TODO: overloaded methods with different number of parameters
+        // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
+        // TODO: support for varargs
     }
 }
 
