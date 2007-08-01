@@ -78,12 +78,12 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldSupportTheUseOfAParameter() {
+        public void shouldSupportAParameter() {
             exec.execute("foo x");
             specify(target.fooParameter, should.equal("x"));
         }
 
-        public void shouldSupportTheUseOfMultipleParameters() {
+        public void shouldSupportMultipleParameters() {
             exec.execute("bar y z");
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
@@ -100,22 +100,22 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooParameter, should.equal("two words"));
         }
 
-        public void shouldSupportMultipleWordsUsingTheEscapeCharacter() {
+        public void shouldSupportMultipleWordsUsingEscapeSequences() {
             exec.execute("foo two\\ words");
             specify(target.fooParameter, should.equal("two words"));
         }
 
-        public void shouldSupportMixingDoubleQuotesAndTheEscapeCharacter() {
+        public void shouldSupportMixingDoubleQuotesAndEscapeSequences() {
             exec.execute("foo \"escape char is \\\\ and quote char is \\\"\"");
             specify(target.fooParameter, should.equal("escape char is \\ and quote char is \""));
         }
 
-        public void shouldSupportNewlineCharacter() {
+        public void shouldSupportTheNewlineCharacter() {
             exec.execute("foo line1\\nline2");
             specify(target.fooParameter, should.equal("line1\nline2"));
         }
 
-        public void shouldSupportTabCharacter() {
+        public void shouldSupportTheTabCharacter() {
             exec.execute("foo col1\\tcol2");
             specify(target.fooParameter, should.equal("col1\tcol2"));
         }
@@ -148,7 +148,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                     "                                               ^"));
         }
 
-        public void shouldComplainAboutMissingEscapeSequences() {
+        public void shouldComplainAboutInvalidEscapeSequences() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("foo \\e_is_not_a_valid_escape_sequence");
@@ -218,17 +218,17 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldSupportTheUseOfIntegerObjects() {
+        public void shouldSupportIntegerObjectsAsAParameter() {
             exec.execute("integer 1");
             specify(target.integerValue, should.equal(1));
         }
 
-        public void shouldSupportTheUseOfDoubleObjects() {
+        public void shouldSupportDoubleObjectsAsAParameter() {
             exec.execute("double_ 2.5");
             specify(target.doubleValue, should.equal(2.5));
         }
 
-        public void shouldSupportTheUseOfAllPrimitiveTypes() {
+        public void shouldSupportAllPrimitiveTypesAsAParameter() {
             exec.execute("primitives true -128 c 32767 2147483647 9223372036854775807 1.123 2.456");
             specify(target.primBoolean, should.equal(Boolean.TRUE));
             specify(target.primByte, should.equal(Byte.MIN_VALUE));
@@ -285,20 +285,21 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.methodOneExecuted, should.equal(1));
         }
 
-        public void shouldSupportTheUseOfParameters() {
+        public void shouldSupportMethodsWithParameters() {
             exec.execute("method two 42");
             specify(target.methodTwoValue, should.equal(42));
         }
 
-        public void shouldSupportOverloadingOfCommands() {
+        public void shouldSupportOverloadingCommandNames() {
             exec.execute("method one more");
             specify(target.methodOneMoreExecuted, should.equal(1));
         }
     }
 
+    // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
     // TODO: support for enum classes
 
-    public class CommandsWithPossiblyConflictingNamesAndParameters {
+    public class InACornerSituationTheCommandExecuter {
 
         private class TargetMock {
             private int oneExecuted;
@@ -415,4 +416,3 @@ public class CommandExecuterSpec extends Specification<Object> {
         // TODO: support for varargs
     }
 }
-
