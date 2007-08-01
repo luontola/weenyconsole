@@ -296,9 +296,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
-    // TODO: support for enum classes
-
     public class InACornerSituationTheCommandExecuter {
 
         private class TargetMock {
@@ -411,8 +408,14 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         // TODO: handle the case when the target method throws an exception
-        // TODO: overloaded methods with different number of parameters
         // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
+        // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
+        // TODO: support providing factory classes for objects which do not have a string constructor
+        // TODO: support for enum classes
         // TODO: support for varargs
+        // TODO: overloaded methods with different number of parameters
+        /* TODO: support for priorizing overloaded methods according to parameter types
+           (double > long > integer > character > string etc.)
+           and move overloaded method tests to their own context */
     }
 }
