@@ -193,7 +193,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.doubleValue, should.equal(2.5));
         }
 
-        public void shouldSupportTheUsePrimitiveTypes() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfAllPrimitiveTypes() throws CommandNotFoundException {
             exec.execute("primitives true -128 c 32767 2147483647 9223372036854775807 1.123 2.456");
             specify(target.primBoolean, should.equal(Boolean.TRUE));
             specify(target.primByte, should.equal(Byte.MIN_VALUE));
