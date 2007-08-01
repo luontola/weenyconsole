@@ -131,7 +131,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("foo \"not properly quoted");
                 }
-            }, should.raise(IllegalArgumentException.class));
+            }, should.raise(RuntimeException.class)); // TODO: use another exception
         }
 
         public void shouldComplainAboutInvalidUseOfTheEscapeCharacter() throws CommandNotFoundException {
@@ -139,7 +139,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("foo escape_char_has_nothing_to_escape\\");
                 }
-            }, should.raise(IllegalArgumentException.class));
+            }, should.raise(RuntimeException.class)); // TODO: use another exception
         }
 
         // TODO: should null parameters be made possible?
@@ -220,9 +220,9 @@ public class CommandExecuterSpec extends Specification<Object> {
             target.nullCheckValue = 123;
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("null check \0");
+                    exec.execute("null check \\0");
                 }
-            }, should.raise(CommandNotFoundException.class)); // TODO: use other exception
+            }, should.raise(CommandNotFoundException.class)); // TODO: use other exception?
             specify(target.nullCheckValue, should.equal(123));
         }
     }
@@ -284,6 +284,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             private Integer overloadedInt;
             private Boolean overloadedBoolean;
             private Boolean booleanCaseValue;
+            private int nullCheckExecuted;
 
             public void one(String more) {
                 oneExecuted++;
@@ -310,6 +311,13 @@ public class CommandExecuterSpec extends Specification<Object> {
                 booleanCaseValue = x;
             }
 
+            public void nullChecknull() {
+                nullCheckExecuted++;
+            }
+
+            public void nullCheckNull() {
+                nullCheckExecuted++;
+            }
         }
 
         private TargetMock target;
@@ -366,6 +374,15 @@ public class CommandExecuterSpec extends Specification<Object> {
                 }
             }, should.raise(CommandNotFoundException.class, "boolean case not_boolean"));
             specify(target.booleanCaseValue, should.equal(null));
+        }
+
+        public void shouldNotConvertNullValuesToBePartOfTheMethodName() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("null check \\0");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.nullCheckExecuted, should.equal(0));
         }
 
         // TODO: handle the case when the target method throws an exception

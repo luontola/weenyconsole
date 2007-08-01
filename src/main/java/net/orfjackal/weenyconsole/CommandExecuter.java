@@ -43,6 +43,10 @@ public class CommandExecuter {
             }
             throw new CommandNotFoundException(command);
 
+        } catch (IllegalArgumentException e) {
+            // method.invoke failed because of invalid parameter types, which should not happen
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -53,9 +57,9 @@ public class CommandExecuter {
     private static List<Possibility> possibleMethodCalls(String[] words) {
         List<Possibility> possibilities = new ArrayList<Possibility>();
         for (int wordsFromStart = words.length; wordsFromStart > 0; wordsFromStart--) {
-            String name1 = combineToMethodName(words, wordsFromStart);
-            if (name1 != null) {
-                possibilities.add(new Possibility(name1, words, wordsFromStart));
+            String name = combineToMethodName(words, wordsFromStart);
+            if (name != null) {
+                possibilities.add(new Possibility(name, words, wordsFromStart));
             }
         }
         return possibilities;
@@ -85,6 +89,9 @@ public class CommandExecuter {
         String methodName = "";
         for (int i = 0; i < wordsFromStart; i++) {
             String word = words[i];
+            if (word == null) {
+                return null;
+            }
             if (i > 0) {
                 word = capitalize(word);
             }
@@ -156,9 +163,9 @@ public class CommandExecuter {
 
     private static Object convertToType(String sourceValue, Class<?> targetType) throws NotAMatchException {
         if (sourceValue == null) {
-//            if (targetType.isPrimitive()) {
-//                throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
-//            }
+            if (targetType.isPrimitive()) {
+                throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
+            }
             return null;
         }
         if (targetType.isPrimitive()) {
