@@ -71,6 +71,7 @@ public class CommandExecuter {
             return parameters;
 
         } catch (NotAMatchException e) {
+//            System.err.println(e.getMessage());
 //            e.printStackTrace();
             return null;
         }
@@ -154,6 +155,9 @@ public class CommandExecuter {
                 && !sourceValue.equals(Boolean.toString(true))
                 && !sourceValue.equals(Boolean.toString(false))) {
             throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
+        }
+        if (targetType.equals(Character.class) && sourceValue.length() == 1) {
+            return sourceValue.charAt(0);
         }
         try {
             Constructor<?> constructor = targetType.getConstructor(String.class);

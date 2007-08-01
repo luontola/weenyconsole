@@ -144,7 +144,14 @@ public class CommandExecuterSpec extends Specification<Object> {
         private class TargetMock {
             public Integer integerValue;
             private Double doubleValue;
-            public int intValue;
+            private Boolean primBoolean;
+            private Byte primByte;
+            private Character primChar;
+            private Short primShort;
+            private Integer primInt;
+            private Long primLong;
+            private Float primFloat;
+            private Double primDouble;
 
             public void integer(Integer x) {
                 integerValue = x;
@@ -154,8 +161,16 @@ public class CommandExecuterSpec extends Specification<Object> {
                 doubleValue = x;
             }
 
-            public void int_(int x) {
-                intValue = x;
+            public void primitives(boolean boolean_, byte byte_, char char_, short short_,
+                                   int int_, long long_, float float_, double double_) {
+                primBoolean = boolean_;
+                primByte = byte_;
+                primChar = char_;
+                primShort = short_;
+                primInt = int_;
+                primLong = long_;
+                primFloat = float_;
+                primDouble = double_;
             }
         }
 
@@ -179,8 +194,15 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldSupportTheUsePrimitiveTypes() throws CommandNotFoundException {
-            exec.execute("int_ 3");
-            specify(target.intValue, should.equal(3));
+            exec.execute("primitives true -128 c 32767 2147483647 9223372036854775807 1.123 2.456");
+            specify(target.primBoolean, should.equal(Boolean.TRUE));
+            specify(target.primByte, should.equal(Byte.MIN_VALUE));
+            specify(target.primChar, should.equal('c'));
+            specify(target.primShort, should.equal(Short.MAX_VALUE));
+            specify(target.primInt, should.equal(Integer.MAX_VALUE));
+            specify(target.primLong, should.equal(Long.MAX_VALUE));
+            specify(target.primFloat, should.equal(1.123F));
+            specify(target.primDouble, should.equal(2.456));
         }
     }
 
@@ -325,6 +347,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.booleanCaseValue, should.equal(null));
         }
 
+        // TODO: handle the case when the target method throws an exception
         // TODO: overloaded methods with different number of parameters
         // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
         // TODO: support for varargs
