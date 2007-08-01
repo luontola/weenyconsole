@@ -130,7 +130,13 @@ public class CommandExecuter {
         for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);
             if (escaped) {
-                if (c == 'n') {
+                if (c == ' ') {
+                    c = ' ';
+                } else if (c == '\\') {
+                    c = '\\';
+                } else if (c == '"') {
+                    c = '"';
+                } else if (c == 'n') {
                     c = '\n';
                 } else if (c == 't') {
                     c = '\t';
@@ -138,6 +144,8 @@ public class CommandExecuter {
                     words.add(null);
                     escaped = false;
                     continue;
+                } else {
+                    throw new MalformedCommandException(command, "escape sequence expected", i);
                 }
                 word += c;
                 escaped = false;
@@ -158,7 +166,7 @@ public class CommandExecuter {
             throw new MalformedCommandException(command, "double quote expected", command.length());
         }
         if (escaped) {
-            throw new MalformedCommandException(command, "invalid escape character", command.length());
+            throw new MalformedCommandException(command, "escape sequence expected", command.length());
         }
         if (word.length() > 0) {
             words.add(word);

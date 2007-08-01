@@ -11,6 +11,13 @@ public class MalformedCommandException extends CommandExecutionException {
     }
 
     private static String messageFor(String command, String reason, int errorPos) {
-        return null;
+        StringBuilder message = new StringBuilder((command.length() + reason.length()) * 3);
+        message.append(reason).append(": ").append(command).append('\n');
+        int padding = (reason.length() + 2 + errorPos);
+        for (int i = 0; i < padding; i++) {
+            message.append(' ');
+        }
+        message.append('^');
+        return message.toString();
     }
 }

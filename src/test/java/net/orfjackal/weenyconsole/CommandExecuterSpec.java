@@ -126,23 +126,35 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooParameter, should.equal(null));
         }
 
-        public void shouldComplainAboutInvalidUseOfDoubleQuotes() {
+        public void shouldComplainAboutMissingDoubleQuotes() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("foo \"not properly quoted");
                 }
-            }, should.raise(MalformedCommandException.class));
+            }, should.raise(MalformedCommandException.class, "" +
+                    "double quote expected: foo \"not properly quoted\n" +
+                    "                                               ^"));
         }
 
-        public void shouldComplainAboutInvalidUseOfTheEscapeCharacter() {
+        public void shouldComplainAboutMissingEscapeSequences() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo \\e_is_not_a_valid_escape_sequence");
+                }
+            }, should.raise(MalformedCommandException.class, "" +
+                    "escape sequence expected: foo \\e_is_not_a_valid_escape_sequence\n" +
+                    "                               ^"));
+        }
+
+        public void shouldComplainAboutIncompleteEscapeSequences() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("foo escape_char_has_nothing_to_escape\\");
                 }
-            }, should.raise(MalformedCommandException.class));
+            }, should.raise(MalformedCommandException.class, "" +
+                    "escape sequence expected: foo escape_char_has_nothing_to_escape\\\n" +
+                    "                                                                ^"));
         }
-
-        // TODO: should null parameters be made possible?
     }
 
     public class CommandsWithNumericParameters {
