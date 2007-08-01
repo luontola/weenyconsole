@@ -2,13 +2,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>net.orfjackal.weenyconsole</groupId>
     <artifactId>weenyconsole</artifactId>
-    <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>WeenyConsole</name>
-    <url>http://www.orfjackal.net</url>
+    <packaging>jar</packaging>
 
+    <name>WeenyConsole</name>
+    <description>Command line interface which executes methods on a POJO</description>
+    <url>http://www.orfjackal.net</url>
     <developers>
         <developer>
             <name>Esko Luontola</name>
@@ -35,7 +37,7 @@
         <dependency>
             <groupId>org.jdave</groupId>
             <artifactId>jdave-junit4</artifactId>
-            <version>0.9.0</version>
+            <version>0.9.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
