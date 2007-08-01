@@ -1,7 +1,6 @@
 package net.orfjackal.weenyconsole;
 
 import javax.lang.model.SourceVersion;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,23 +23,15 @@ public class CommandExecuter {
      */
     public void execute(String command) {
         try {
-            String[] words = separateWords(command);
-            if (words.length == 0) {
+            String[] commandWords = separateWords(command);
+            if (commandWords.length == 0) {
                 return;
             }
-            List<Possibility> possibilities = possibleMethodCalls(words);
-            Method[] methods = target.getClass().getMethods();
-
-            for (Possibility possible : possibilities) {
-                for (Method method : methods) {
-                    if (methodHasTheRightName(method, possible.methodName)) {
-                        Object[] parameters = parametersForMethod(method, possible.parameters);
-                        if (parameters != null) {
-//                            System.out.println("method = " + method);
-//                            System.out.println("parameters = " + Arrays.asList(parameters));
-                            method.invoke(target, parameters);
-                            return;
-                        }
+            for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
+                for (Method method : possibleMethods()) {
+                    if (methodCall.matches(method)) {
+                        methodCall.invoke(method, target);
+                        return;
                     }
                 }
             }
@@ -62,33 +53,19 @@ public class CommandExecuter {
         }
     }
 
-    private static List<Possibility> possibleMethodCalls(String[] words) {
-        List<Possibility> possibilities = new ArrayList<Possibility>();
-        for (int wordsFromStart = words.length; wordsFromStart > 0; wordsFromStart--) {
-            String name = combineToMethodName(words, wordsFromStart);
-            if (name != null) {
-                possibilities.add(new Possibility(name, words, wordsFromStart));
+    private Method[] possibleMethods() {
+        return target.getClass().getMethods();
+    }
+
+    private static List<MethodCall> possibleMethodCalls(String[] words) {
+        List<MethodCall> possibilities = new ArrayList<MethodCall>();
+        for (int i = words.length; i > 0; i--) {
+            String methodName = combineToMethodName(words, i);
+            if (methodName != null) {
+                possibilities.add(new MethodCall(methodName, words, i, words.length - i));
             }
         }
         return possibilities;
-    }
-
-    private static Object[] parametersForMethod(Method method, String[] words) {
-        try {
-            Class<?>[] types = method.getParameterTypes();
-            Object[] parameters = new Object[words.length];
-            for (int i = 0; i < types.length; i++) {
-                parameters[i] = convertToType(words[i], types[i]);
-            }
-            return parameters;
-
-        } catch (ConversionFailedException e) {
-            return null;
-        }
-    }
-
-    private static boolean methodHasTheRightName(Method method, String name) {
-        return method.getName().equals(name);
     }
 
     private static String combineToMethodName(String[] words, int wordsFromStart) {
@@ -155,7 +132,8 @@ public class CommandExecuter {
         return finishedWords.toArray(new String[finishedWords.size()]);
     }
 
-    private static String unescape(char escaped, String currentWord, List<String> finishedWords, String command, int currentPos) {
+    private static String unescape(char escaped, String currentWord, List<String> finishedWords,
+                                   String command, int currentPos) {
         Character unescaped;
         if (escaped == ' ') {
             unescaped = ' ';
@@ -180,67 +158,5 @@ public class CommandExecuter {
             throw new MalformedCommandException(command, "null not allowed here", currentPos);
         }
         return currentWord;
-    }
-
-    private static Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
-        if (sourceValue == null) {
-            if (targetType.isPrimitive()) {
-                throw new ConversionFailedException(sourceValue, targetType);
-            }
-            return null;
-        }
-        if (targetType.isPrimitive()) {
-            targetType = primitiveToWrapperType(targetType.getName());
-        }
-        if (targetType.equals(Boolean.class)
-                && !sourceValue.equals(Boolean.toString(true))
-                && !sourceValue.equals(Boolean.toString(false))) {
-            throw new ConversionFailedException(sourceValue, targetType);
-        }
-        if (targetType.equals(Character.class) && sourceValue.length() == 1) {
-            return sourceValue.charAt(0);
-        }
-        try {
-            Constructor<?> constructor = targetType.getConstructor(String.class);
-            return constructor.newInstance(sourceValue);
-        } catch (Exception e) {
-            throw new ConversionFailedException(sourceValue, targetType, e);
-        }
-    }
-
-    private static Class<?> primitiveToWrapperType(String name) {
-        Class<?> wrapper;
-        if (name.equals("boolean")) {
-            wrapper = Boolean.class;
-        } else if (name.equals("byte")) {
-            wrapper = Byte.class;
-        } else if (name.equals("char")) {
-            wrapper = Character.class;
-        } else if (name.equals("short")) {
-            wrapper = Short.class;
-        } else if (name.equals("int")) {
-            wrapper = Integer.class;
-        } else if (name.equals("long")) {
-            wrapper = Long.class;
-        } else if (name.equals("float")) {
-            wrapper = Float.class;
-        } else if (name.equals("double")) {
-            wrapper = Double.class;
-        } else {
-            throw new IllegalArgumentException(name);
-        }
-        return wrapper;
-    }
-
-    private static class Possibility {
-        public String methodName;
-        public String[] parameters;
-
-        public Possibility(String methodName, String[] words, int wordsFromStart) {
-            String[] parameters = new String[words.length - wordsFromStart];
-            System.arraycopy(words, wordsFromStart, parameters, 0, parameters.length);
-            this.methodName = methodName;
-            this.parameters = parameters;
-        }
     }
 }
