@@ -9,6 +9,12 @@
     <name>WeenyConsole</name>
     <url>http://www.orfjackal.net</url>
 
+    <developers>
+        <developer>
+            <name>Esko Luontola</name>
+        </developer>
+    </developers>
+
     <repositories>
         <repository>
             <id>laughing-panda</id>
