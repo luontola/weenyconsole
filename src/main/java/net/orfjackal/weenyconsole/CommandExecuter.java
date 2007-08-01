@@ -19,7 +19,10 @@ public class CommandExecuter {
         this.target = target;
     }
 
-    public void execute(String command) throws CommandNotFoundException {
+    /**
+     * @throws CommandExecutionException
+     */
+    public void execute(String command) {
         try {
             String[] words = separateWords(command);
             if (words.length == 0) {
@@ -43,11 +46,14 @@ public class CommandExecuter {
             }
             throw new CommandNotFoundException(command);
 
-        } catch (IllegalArgumentException e) {
-            // method.invoke failed because of invalid parameter types, which should not happen
+        } catch (CommandExecutionException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            // method.invoke failed because of invalid parameter types (IllegalArgumentException), which should not happen
             // TODO: fix all who come here
+            System.err.println("TODO: FIX THE CAUSE OF THIS EXCEPTION");
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new CommandExecutionException(command, "internal error", e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -75,9 +81,7 @@ public class CommandExecuter {
             }
             return parameters;
 
-        } catch (NotAMatchException e) {
-//            System.err.println(e.getMessage());
-//            e.printStackTrace();
+        } catch (ConversionFailedException e) {
             return null;
         }
     }
@@ -151,10 +155,10 @@ public class CommandExecuter {
             }
         }
         if (insideQuotes) {
-            throw new IllegalArgumentException("Missing a double quote: " + command);
+            throw new MalformedCommandException(command, "double quote expected", command.length());
         }
         if (escaped) {
-            throw new IllegalArgumentException("Incomplete use of the \\ character: " + command);
+            throw new MalformedCommandException(command, "invalid escape character", command.length());
         }
         if (word.length() > 0) {
             words.add(word);
@@ -162,10 +166,10 @@ public class CommandExecuter {
         return words.toArray(new String[words.size()]);
     }
 
-    private static Object convertToType(String sourceValue, Class<?> targetType) throws NotAMatchException {
+    private static Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
         if (sourceValue == null) {
             if (targetType.isPrimitive()) {
-                throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
+                throw new ConversionFailedException(sourceValue, targetType);
             }
             return null;
         }
@@ -175,7 +179,7 @@ public class CommandExecuter {
         if (targetType.equals(Boolean.class)
                 && !sourceValue.equals(Boolean.toString(true))
                 && !sourceValue.equals(Boolean.toString(false))) {
-            throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
+            throw new ConversionFailedException(sourceValue, targetType);
         }
         if (targetType.equals(Character.class) && sourceValue.length() == 1) {
             return sourceValue.charAt(0);
@@ -184,7 +188,7 @@ public class CommandExecuter {
             Constructor<?> constructor = targetType.getConstructor(String.class);
             return constructor.newInstance(sourceValue);
         } catch (Exception e) {
-            throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType, e);
+            throw new ConversionFailedException(sourceValue, targetType, e);
         }
     }
 

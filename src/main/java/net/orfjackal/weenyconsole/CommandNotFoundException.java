@@ -4,17 +4,13 @@ package net.orfjackal.weenyconsole;
  * @author Esko Luontola
  * @since 31.7.2007
  */
-public class CommandNotFoundException extends Exception {
+public class CommandNotFoundException extends CommandExecutionException {
 
     public CommandNotFoundException(String command) {
-        super(command);
+        super(command, messageFor(command));
     }
 
-    public CommandNotFoundException(String command, Throwable cause) {
-        super(command, cause);
-    }
-
-    public String getCommand() {
-        return getMessage();
+    private static String messageFor(String command) {
+        return "command not found: " + command;
     }
 }

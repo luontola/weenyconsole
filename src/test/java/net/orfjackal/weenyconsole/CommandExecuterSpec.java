@@ -31,7 +31,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallAMethodWithTheSameNameAsTheCommand() throws CommandNotFoundException {
+        public void shouldCallAMethodWithTheSameNameAsTheCommand() {
             exec.execute("foo");
             specify(target.fooExecuted, should.equal(1));
         }
@@ -41,11 +41,11 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("bar");
                 }
-            }, should.raise(CommandNotFoundException.class, "bar"));
+            }, should.raise(CommandNotFoundException.class, "command not found: bar"));
             specify(target.fooExecuted, should.equal(0));
         }
 
-        public void anEmptyCommandShouldExitSilently() throws CommandNotFoundException {
+        public void anEmptyCommandShouldExitSilently() {
             exec.execute("");               // trivial case of an empty string
             exec.execute("  \n");           // whitespace should also be regarded as an empty command
             specify(target.fooExecuted, should.equal(0));
@@ -78,68 +78,68 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldSupportTheUseOfAParameter() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfAParameter() {
             exec.execute("foo x");
             specify(target.fooParameter, should.equal("x"));
         }
 
-        public void shouldSupportTheUseOfMultipleParameters() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfMultipleParameters() {
             exec.execute("bar y z");
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
         }
 
-        public void shouldNotCareAboutEmptySpaceBetweenWords() throws CommandNotFoundException {
+        public void shouldNotCareAboutEmptySpaceBetweenWords() {
             exec.execute(" bar y  z ");
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
         }
 
-        public void shouldSupportMultipleWordsInDoubleQuotes() throws CommandNotFoundException {
+        public void shouldSupportMultipleWordsInDoubleQuotes() {
             exec.execute("foo \"two words\"");
             specify(target.fooParameter, should.equal("two words"));
         }
 
-        public void shouldSupportMultipleWordsUsingTheEscapeCharacter() throws CommandNotFoundException {
+        public void shouldSupportMultipleWordsUsingTheEscapeCharacter() {
             exec.execute("foo two\\ words");
             specify(target.fooParameter, should.equal("two words"));
         }
 
-        public void shouldSupportMixingDoubleQuotesAndTheEscapeCharacter() throws CommandNotFoundException {
+        public void shouldSupportMixingDoubleQuotesAndTheEscapeCharacter() {
             exec.execute("foo \"escape char is \\\\ and quote char is \\\"\"");
             specify(target.fooParameter, should.equal("escape char is \\ and quote char is \""));
         }
 
-        public void shouldSupportNewlineCharacter() throws CommandNotFoundException {
+        public void shouldSupportNewlineCharacter() {
             exec.execute("foo line1\\nline2");
             specify(target.fooParameter, should.equal("line1\nline2"));
         }
 
-        public void shouldSupportTabCharacter() throws CommandNotFoundException {
+        public void shouldSupportTabCharacter() {
             exec.execute("foo col1\\tcol2");
             specify(target.fooParameter, should.equal("col1\tcol2"));
         }
 
-        public void shouldSupportNullCharacter() throws CommandNotFoundException {
+        public void shouldSupportNullCharacter() {
             target.fooParameter = "initial value";
             exec.execute("foo \\0");
             specify(target.fooParameter, should.equal(null));
         }
 
-        public void shouldComplainAboutInvalidUseOfDoubleQuotes() throws CommandNotFoundException {
+        public void shouldComplainAboutInvalidUseOfDoubleQuotes() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("foo \"not properly quoted");
                 }
-            }, should.raise(RuntimeException.class)); // TODO: use another exception
+            }, should.raise(MalformedCommandException.class));
         }
 
-        public void shouldComplainAboutInvalidUseOfTheEscapeCharacter() throws CommandNotFoundException {
+        public void shouldComplainAboutInvalidUseOfTheEscapeCharacter() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("foo escape_char_has_nothing_to_escape\\");
                 }
-            }, should.raise(RuntimeException.class)); // TODO: use another exception
+            }, should.raise(MalformedCommandException.class));
         }
 
         // TODO: should null parameters be made possible?
@@ -188,23 +188,23 @@ public class CommandExecuterSpec extends Specification<Object> {
         private TargetMock target;
         private CommandExecuter exec;
 
-        public Object create() throws CommandNotFoundException {
+        public Object create() {
             target = new TargetMock();
             exec = new CommandExecuter(target);
             return null;
         }
 
-        public void shouldSupportTheUseOfIntegerObjects() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfIntegerObjects() {
             exec.execute("integer 1");
             specify(target.integerValue, should.equal(1));
         }
 
-        public void shouldSupportTheUseOfDoubleObjects() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfDoubleObjects() {
             exec.execute("double_ 2.5");
             specify(target.doubleValue, should.equal(2.5));
         }
 
-        public void shouldSupportTheUseOfAllPrimitiveTypes() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfAllPrimitiveTypes() {
             exec.execute("primitives true -128 c 32767 2147483647 9223372036854775807 1.123 2.456");
             specify(target.primBoolean, should.equal(Boolean.TRUE));
             specify(target.primByte, should.equal(Byte.MIN_VALUE));
@@ -216,13 +216,13 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.primDouble, should.equal(2.456));
         }
 
-        public void shouldNotAllowConvertingNullToAPrimitiveType() throws CommandNotFoundException {
+        public void shouldNotAllowConvertingNullToAPrimitiveType() {
             target.nullCheckValue = 123;
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("null check \\0");
                 }
-            }, should.raise(CommandNotFoundException.class)); // TODO: use other exception?
+            }, should.raise(CommandNotFoundException.class));
             specify(target.nullCheckValue, should.equal(123));
         }
     }
@@ -256,17 +256,17 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallAMethodWithAllTheWordsInItsName() throws CommandNotFoundException {
+        public void shouldCallAMethodWithAllTheWordsInItsName() {
             exec.execute("method one");
             specify(target.methodOneExecuted, should.equal(1));
         }
 
-        public void shouldSupportTheUseOfParameters() throws CommandNotFoundException {
+        public void shouldSupportTheUseOfParameters() {
             exec.execute("method two 42");
             specify(target.methodTwoValue, should.equal(42));
         }
 
-        public void shouldSupportOverloadingOfCommands() throws CommandNotFoundException {
+        public void shouldSupportOverloadingOfCommands() {
             exec.execute("method one more");
             specify(target.methodOneMoreExecuted, should.equal(1));
         }
@@ -329,7 +329,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldPrioritizeTheMethodWithTheLongestName() throws CommandNotFoundException {
+        public void shouldPrioritizeTheMethodWithTheLongestName() {
             exec.execute("one more");
             specify(target.oneMoreExecuted, should.equal(1));
             specify(target.oneExecuted, should.equal(0));
@@ -346,17 +346,17 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("constructor error not_int");
                 }
-            }, should.raise(CommandNotFoundException.class, "constructor error not_int"));
+            }, should.raise(CommandNotFoundException.class));
             specify(target.constructorErrorValue, should.equal(null));
         }
 
-        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() throws CommandNotFoundException {
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() {
             exec.execute("overloaded 42");
             specify(target.overloadedInt, should.equal(42));
             specify(target.overloadedBoolean, should.equal(null));
         }
 
-        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() throws CommandNotFoundException {
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() {
             exec.execute("overloaded true");
             specify(target.overloadedInt, should.equal(null));
             specify(target.overloadedBoolean, should.equal(true));
@@ -367,12 +367,12 @@ public class CommandExecuterSpec extends Specification<Object> {
          * we want to have stricter conversions, especially if there
          * would be an overloaded method with more exact parameters.
          */
-        public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() throws CommandNotFoundException {
+        public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("boolean case not_boolean");
                 }
-            }, should.raise(CommandNotFoundException.class, "boolean case not_boolean"));
+            }, should.raise(CommandNotFoundException.class));
             specify(target.booleanCaseValue, should.equal(null));
         }
 
