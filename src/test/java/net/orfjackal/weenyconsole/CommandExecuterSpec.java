@@ -15,7 +15,7 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class CommandsWithNoParameters {
 
         private class TargetMock {
-            public int fooExecuted = 0;
+            private int fooExecuted = 0;
 
             public void foo() {
                 fooExecuted++;
@@ -55,9 +55,9 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class CommandsWithStringParameters {
 
         private class TargetMock {
-            public String fooParameter;
-            public String barParameter1;
-            public String barParameter2;
+            private String fooParameter;
+            private String barParameter1;
+            private String barParameter2;
 
             public void foo(String s) {
                 fooParameter = s;
@@ -120,6 +120,12 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooParameter, should.equal("col1\tcol2"));
         }
 
+        public void shouldSupportNullCharacter() throws CommandNotFoundException {
+            target.fooParameter = "initial value";
+            exec.execute("foo \\0");
+            specify(target.fooParameter, should.equal(null));
+        }
+
         public void shouldComplainAboutInvalidUseOfDoubleQuotes() throws CommandNotFoundException {
             specify(new Block() {
                 public void run() throws Throwable {
@@ -142,7 +148,7 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class CommandsWithNumericParameters {
 
         private class TargetMock {
-            public Integer integerValue;
+            private Integer integerValue;
             private Double doubleValue;
             private Boolean primBoolean;
             private Byte primByte;
@@ -152,6 +158,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             private Long primLong;
             private Float primFloat;
             private Double primDouble;
+            private Integer nullCheckValue;
 
             public void integer(Integer x) {
                 integerValue = x;
@@ -171,6 +178,10 @@ public class CommandExecuterSpec extends Specification<Object> {
                 primLong = long_;
                 primFloat = float_;
                 primDouble = double_;
+            }
+
+            public void nullCheck(int x) {
+                nullCheckValue = x;
             }
         }
 
@@ -204,14 +215,24 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.primFloat, should.equal(1.123F));
             specify(target.primDouble, should.equal(2.456));
         }
+
+        public void shouldNotAllowConvertingNullToAPrimitiveType() throws CommandNotFoundException {
+            target.nullCheckValue = 123;
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("null check \0");
+                }
+            }, should.raise(CommandNotFoundException.class)); // TODO: use other exception
+            specify(target.nullCheckValue, should.equal(123));
+        }
     }
 
     public class MultiWordCommands {
 
         private class TargetMock {
-            public int methodOneExecuted;
-            public int methodOneMoreExecuted;
-            public int methodTwoValue;
+            private int methodOneExecuted;
+            private int methodOneMoreExecuted;
+            private int methodTwoValue;
 
             public void methodOne() {
                 methodOneExecuted++;
@@ -256,13 +277,13 @@ public class CommandExecuterSpec extends Specification<Object> {
     public class CommandsWithPossiblyConflictingNamesAndParameters {
 
         private class TargetMock {
-            public int oneExecuted;
-            public String oneValue;
-            public int oneMoreExecuted;
-            public Integer constructorErrorValue;
-            public Integer overloadedInt;
-            public Boolean overloadedBoolean;
-            public Boolean booleanCaseValue;
+            private int oneExecuted;
+            private String oneValue;
+            private int oneMoreExecuted;
+            private Integer constructorErrorValue;
+            private Integer overloadedInt;
+            private Boolean overloadedBoolean;
+            private Boolean booleanCaseValue;
 
             public void one(String more) {
                 oneExecuted++;

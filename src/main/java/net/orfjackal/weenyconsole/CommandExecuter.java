@@ -104,6 +104,9 @@ public class CommandExecuter {
     }
 
     private static String capitalize(String word) {
+        if (word == null) {
+            return null;
+        }
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 
@@ -119,6 +122,10 @@ public class CommandExecuter {
                     c = '\n';
                 } else if (c == 't') {
                     c = '\t';
+                } else if (c == '0' && word.length() == 0) {
+                    words.add(null);
+                    escaped = false;
+                    continue;
                 }
                 word += c;
                 escaped = false;
@@ -148,6 +155,12 @@ public class CommandExecuter {
     }
 
     private static Object convertToType(String sourceValue, Class<?> targetType) throws NotAMatchException {
+        if (sourceValue == null) {
+//            if (targetType.isPrimitive()) {
+//                throw new NotAMatchException("Can not convert " + sourceValue + " to " + targetType);
+//            }
+            return null;
+        }
         if (targetType.isPrimitive()) {
             targetType = primitiveToWrapperType(targetType.getName());
         }
