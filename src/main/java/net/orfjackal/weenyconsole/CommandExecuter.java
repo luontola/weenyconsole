@@ -22,6 +22,9 @@ public class CommandExecuter {
     public void execute(String command) throws CommandNotFoundException {
         try {
             String[] words = separateWords(command);
+            if (words.length == 0) {
+                return;
+            }
             List<Possibility> possibilities = possibleMethodCalls(words);
             Method[] methods = target.getClass().getMethods();
 
