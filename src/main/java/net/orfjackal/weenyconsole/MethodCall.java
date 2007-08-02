@@ -64,7 +64,7 @@ class MethodCall {
                 for (int i = (types.length - 1); i < words.length; i++) { // vararg parameters
                     varargParams.add(convertToType(words[i], varargType));
                 }
-                parameters[types.length - 1] = varargParams.toArray((Object[]) Array.newInstance(varargType, 0));
+                parameters[types.length - 1] = toArray(varargParams, varargType);
 
             } else if (types.length == words.length) {
                 int i = types.length - 1;
@@ -82,6 +82,10 @@ class MethodCall {
         } catch (ConversionFailedException e) {
             return null;
         }
+    }
+
+    private static Object[] toArray(List<?> items, Class<?> typeOfItems) {
+        return items.toArray((Object[]) Array.newInstance(typeOfItems, items.size()));
     }
 
     private Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
