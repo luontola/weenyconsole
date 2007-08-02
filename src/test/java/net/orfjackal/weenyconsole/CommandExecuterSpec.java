@@ -14,7 +14,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class CommandsWithNoParameters {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             private int fooExecuted = 0;
 
             public void foo() {
@@ -54,7 +54,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class CommandsWithStringParameters {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             private String fooParameter;
             private String barParameter1;
             private String barParameter2;
@@ -171,7 +171,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class CommandsWithNumericParameters {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             private Integer integerValue;
             private Double doubleValue;
             private Boolean primBoolean;
@@ -253,7 +253,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class MultiWordCommands {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             private int methodOneExecuted;
             private int methodOneMoreExecuted;
             private int methodTwoValue;
@@ -298,7 +298,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class InACornerSituationTheCommandExecuter {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             private int oneExecuted;
             private String oneValue;
             private int oneMoreExecuted;
@@ -410,7 +410,7 @@ public class CommandExecuterSpec extends Specification<Object> {
 
     public class WhenTheTargetMethodThrowsAnException {
 
-        private class TargetMock {
+        private class TargetMock implements CommandService {
             public void exceptionThrower() {
                 throw new IllegalStateException("some exception");
             }
@@ -457,11 +457,19 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    private static class InheritanceRulesParentMock {
-        public int inheritedMethodExecuted;
+    private static class InheritanceRulesParentMock extends InheritanceRulesSuperParentMock implements CommandService {
+        public int inheritedAllowedMethodExecuted;
 
-        public void inheritedMethod() {
-            inheritedMethodExecuted++;
+        public void inheritedAllowedMethod() {
+            inheritedAllowedMethodExecuted++;
+        }
+    }
+
+    private static class InheritanceRulesSuperParentMock {
+        public int inheritedUnallowedMethodExecuted;
+
+        public void inheritedUnallowedMethod() {
+            inheritedUnallowedMethodExecuted++;
         }
     }
 
@@ -508,13 +516,18 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.privateMethodExecuted, should.equal(0));
         }
 
-        public void shouldNotAllowCallingMethodsInTheSuperclass() {
+        public void shouldNotAllowCallingInheritedMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("inherited method");
+                    exec.execute("inherited unallowed method");
                 }
             }, should.raise(CommandNotFoundException.class));
-            specify(target.inheritedMethodExecuted, should.equal(0));
+            specify(target.inheritedUnallowedMethodExecuted, should.equal(0));
+        }
+
+        public void shouldAllowCallingInheritedMethodsWhenTheyImplementTheMarkerInterface() {
+            exec.execute("inherited allowed method");
+            specify(target.inheritedAllowedMethodExecuted, should.equal(1));
         }
     }
 

@@ -53,12 +53,17 @@ public class CommandExecuter {
 
     private Method[] possibleMethods() {
         List<Method> result = new ArrayList<Method>();
-        for (Method method : target.getClass().getDeclaredMethods()) {
-            if (Modifier.isPublic(method.getModifiers())) {
+        for (Method method : target.getClass().getMethods()) {
+            if (Modifier.isPublic(method.getModifiers())
+                    && implementsTheMarkerInterface(method.getDeclaringClass())) {
                 result.add(method);
             }
         }
         return result.toArray(new Method[result.size()]);
+    }
+
+    private static boolean implementsTheMarkerInterface(Class<?> cls) {
+        return CommandService.class.isAssignableFrom(cls);
     }
 
     private static List<MethodCall> possibleMethodCalls(String[] words) {
