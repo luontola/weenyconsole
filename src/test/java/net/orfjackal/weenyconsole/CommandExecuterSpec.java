@@ -5,6 +5,8 @@ import jdave.Specification;
 import jdave.junit4.JDaveRunner;
 import org.junit.runner.RunWith;
 
+import java.awt.*;
+
 /**
  * @author Esko Luontola
  * @since 31.7.2007
@@ -264,6 +266,82 @@ public class CommandExecuterSpec extends Specification<Object> {
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.nullCheckValue, should.equal(123));
+        }
+    }
+
+    private static class CustomObject {
+        private String value;
+
+        public CustomObject(String x) {
+            this.value = x;
+        }
+    }
+
+    public class CommandsWithObjectParameters {
+
+        private class TargetMock implements CommandService {
+            private CustomObject constructorParam;
+            public Point factoryParam;
+            private Integer integerParam;
+
+            public void constructor(CustomObject x) {
+                constructorParam = x;
+            }
+
+            public void factory(Point x) {
+                factoryParam = x;
+            }
+
+            public void integer(Integer x) {
+                integerParam = x;
+            }
+        }
+
+        private class PointConstructorFactory implements ConstructorFactory {
+            public boolean canCreateInstancesOf(Class<?> type) {
+                return type.equals(Point.class);
+            }
+
+            public Object createNewInstanceFrom(String sourceValue) {
+                String[] xy = sourceValue.split(",", 2);
+                return new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
+            }
+        }
+
+        private class DoublingIntegerConstructorFactory implements ConstructorFactory {
+            public boolean canCreateInstancesOf(Class<?> type) {
+                return type.equals(Integer.class);
+            }
+
+            public Object createNewInstanceFrom(String sourceValue) {
+                return Integer.valueOf(sourceValue) * 2;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldSupportAnyObjectsWithAStringConstructorAsAParameter() {
+            exec.execute("constructor foo");
+            specify(target.constructorParam.value, should.equal("foo"));
+        }
+
+        public void shouldSupportOtherObjectsAsAParameterIfAFactoryIsProvided() {
+            exec.setConstructorFactory(new PointConstructorFactory());
+            exec.execute("factory 1,2");
+            specify(target.factoryParam, should.equal(new Point(1, 2)));
+        }
+
+        public void theFactoryShouldTakePriorityOverTheDefaultConstructor() {
+            exec.setConstructorFactory(new DoublingIntegerConstructorFactory());
+            exec.execute("integer 3");
+            specify(target.integerParam, should.equal(6));
         }
     }
 
@@ -563,8 +641,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
-    // TODO: support providing factory classes for objects which do not have a string constructor
     // TODO: support for enum classes
     // TODO: support for varargs
     // TODO: overloaded methods with different number of parameters

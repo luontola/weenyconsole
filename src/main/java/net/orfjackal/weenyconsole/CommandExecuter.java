@@ -14,9 +14,14 @@ import java.util.List;
 public class CommandExecuter {
 
     private CommandService target;
+    private ConstructorFactory factory;
 
     public CommandExecuter(CommandService target) {
         this.target = target;
+    }
+
+    public void setConstructorFactory(ConstructorFactory factory) {
+        this.factory = factory;
     }
 
     /**
@@ -71,12 +76,12 @@ public class CommandExecuter {
                 && !Modifier.isStatic(method.getModifiers());
     }
 
-    private static List<MethodCall> possibleMethodCalls(String[] words) {
+    private List<MethodCall> possibleMethodCalls(String[] words) {
         List<MethodCall> possibilities = new ArrayList<MethodCall>();
         for (int i = words.length; i > 0; i--) {
             String methodName = combineToMethodName(words, i);
             if (methodName != null) {
-                possibilities.add(new MethodCall(methodName, words, i, words.length - i));
+                possibilities.add(new MethodCall(methodName, words, i, words.length - i, factory));
             }
         }
         return possibilities;

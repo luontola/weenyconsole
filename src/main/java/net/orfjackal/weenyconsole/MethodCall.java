@@ -12,11 +12,13 @@ class MethodCall {
 
     private String methodName;
     private String[] parameters;
+    private ConstructorFactory factory;
 
-    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen) {
+    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConstructorFactory factory) {
         this.methodName = methodName;
-        parameters = new String[srcLen];
-        System.arraycopy(srcParameters, srcPos, parameters, 0, parameters.length);
+        this.parameters = new String[srcLen];
+        System.arraycopy(srcParameters, srcPos, this.parameters, 0, this.parameters.length);
+        this.factory = factory;
     }
 
     public boolean matches(Method method) {
@@ -36,7 +38,7 @@ class MethodCall {
         return parametersForMethod(method, parameters) != null;
     }
 
-    private static Object[] parametersForMethod(Method method, String[] words) {
+    private Object[] parametersForMethod(Method method, String[] words) {
         try {
             Class<?>[] types = method.getParameterTypes();
             if (types.length != words.length) {
@@ -53,7 +55,7 @@ class MethodCall {
         }
     }
 
-    private static Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
+    private Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
         if (sourceValue == null) {
             if (targetType.isPrimitive()) {
                 throw new ConversionFailedException(sourceValue, targetType);
@@ -72,8 +74,12 @@ class MethodCall {
             return sourceValue.charAt(0);
         }
         try {
+            if (factory != null && factory.canCreateInstancesOf(targetType)) {
+                return factory.createNewInstanceFrom(sourceValue);
+            }
             Constructor<?> constructor = targetType.getConstructor(String.class);
             return constructor.newInstance(sourceValue);
+
         } catch (Exception e) {
             throw new ConversionFailedException(sourceValue, targetType, e);
         }
