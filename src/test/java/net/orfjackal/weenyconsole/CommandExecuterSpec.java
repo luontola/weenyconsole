@@ -283,6 +283,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             private CustomObject constructorParam;
             public Point factoryParam;
             private Integer integerParam;
+            private Integer constructorErrorValue;
 
             public void constructor(CustomObject x) {
                 constructorParam = x;
@@ -294,6 +295,10 @@ public class CommandExecuterSpec extends Specification<Object> {
 
             public void integer(Integer x) {
                 integerParam = x;
+            }
+
+            public void constructorError(int x) {
+                constructorErrorValue = x;
             }
         }
 
@@ -342,6 +347,30 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.setConstructorFactory(new DoublingIntegerConstructorFactory());
             exec.execute("integer 3");
             specify(target.integerParam, should.equal(6));
+        }
+
+        /**
+         * The constructor {@link Integer#Integer(String)} will throw
+         * an exception if the string can not be converted to an integer.
+         * The program must handle silently all exceptions thrown by a constructor.
+         */
+        public void shouldNotCallMethodsToWhichTheParameterCanNotBeConvertedUsingAConstructor() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("constructor error not_int");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.constructorErrorValue, should.equal(null));
+        }
+
+        public void shouldNotCallMethodsToWhichTheParameterCanNotBeConvertedUsingAFactory() {
+            exec.setConstructorFactory(new PointConstructorFactory());
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("factory 1");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.factoryParam, should.equal(null));
         }
     }
 
@@ -436,18 +465,11 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    public class InACornerSituationTheCommandExecuter {
+    public class CommandsWithOverloadedMethods {
 
         private class TargetMock implements CommandService {
-            private Integer constructorErrorValue;
             private Integer overloadedInt;
             private Boolean overloadedBoolean;
-            private Boolean booleanCaseValue;
-            private int nullCheckExecuted;
-
-            public void constructorError(int x) {
-                constructorErrorValue = x;
-            }
 
             public void overloaded(int x) {
                 overloadedInt = x;
@@ -456,6 +478,35 @@ public class CommandExecuterSpec extends Specification<Object> {
             public void overloaded(boolean x) {
                 overloadedBoolean = x;
             }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() {
+            exec.execute("overloaded 42");
+            specify(target.overloadedInt, should.equal(42));
+            specify(target.overloadedBoolean, should.equal(null));
+        }
+
+        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() {
+            exec.execute("overloaded true");
+            specify(target.overloadedInt, should.equal(null));
+            specify(target.overloadedBoolean, should.equal(true));
+        }
+    }
+
+    public class InACornerSituationTheCommandExecuter {
+
+        private class TargetMock implements CommandService {
+            private Boolean booleanCaseValue;
+            private int nullCheckExecuted;
 
             public void booleanCase(boolean x) {
                 booleanCaseValue = x;
@@ -477,34 +528,6 @@ public class CommandExecuterSpec extends Specification<Object> {
             target = new TargetMock();
             exec = new CommandExecuter(target);
             return null;
-        }
-
-        /**
-         * The constructor {@link Integer#Integer(String)} will throw
-         * an exception if the string can not be converted to an integer.
-         * The program must handle silently all exceptions thrown by a constructor.
-         */
-        public void shouldNotCallMethodsToWhichTheParameterCanNotBeConverted() {
-            // TODO: this test could moved to "Commands with object parameters"
-            specify(new Block() {
-                public void run() throws Throwable {
-                    exec.execute("constructor error not_int");
-                }
-            }, should.raise(CommandNotFoundException.class));
-            specify(target.constructorErrorValue, should.equal(null));
-        }
-
-        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() {
-            // TODO: these two test could be moved to a new context for overloaded methods, when more tests are added
-            exec.execute("overloaded 42");
-            specify(target.overloadedInt, should.equal(42));
-            specify(target.overloadedBoolean, should.equal(null));
-        }
-
-        public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV2() {
-            exec.execute("overloaded true");
-            specify(target.overloadedInt, should.equal(null));
-            specify(target.overloadedBoolean, should.equal(true));
         }
 
         /**
@@ -684,7 +707,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: support for enum classes
     // TODO: support for varargs
     // TODO: overloaded methods with different number of parameters
     /* TODO: support for priorizing overloaded methods according to parameter types
