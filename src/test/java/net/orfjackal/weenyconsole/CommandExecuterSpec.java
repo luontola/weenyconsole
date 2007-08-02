@@ -176,13 +176,13 @@ public class CommandExecuterSpec extends Specification<Object> {
             }, should.raise(CommandNotFoundException.class));
         }
 
-//        public void shouldNotAllowUsingTooManyParameters() {
-//            specify(new Block() {
-//                public void run() throws Throwable {
-//                    exec.execute("foo too many");
-//                }
-//            }, should.raise(CommandNotFoundException.class));
-//        }
+        public void shouldNotAllowUsingTooManyParameters() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo too many");
+                }
+            }, should.raise(CommandNotFoundException.class));
+        }
     }
 
     public class CommandsWithNumericParameters {
