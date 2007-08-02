@@ -433,51 +433,52 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    private static class VisibilityRulesTargetMock extends InheritanceRulesParentMock {
+        public int publicMethodExecuted;
+        public int protectedMethodExecuted;
+        public int packageMethodExecuted;
+        public int privateMethodExecuted;
+
+        public void publicMethod() {
+            publicMethodExecuted++;
+        }
+
+        protected void protectedMethod() {
+            protectedMethodExecuted++;
+        }
+
+        void packageMethod() {
+            packageMethodExecuted++;
+        }
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        private void privateMethod() {
+            privateMethodExecuted++;
+        }
+    }
+
+    private static class InheritanceRulesParentMock {
+        public int inheritedMethodExecuted;
+
+        public void inheritedMethod() {
+            inheritedMethodExecuted++;
+        }
+    }
+
     public class VisibilityAndInheritanceRules {
 
-        private class TargetMock extends ParentMock {
-            public void publicMethod() {
-                publicMethodExecuted++;
-            }
-
-            protected void protectedMethod() {
-                protectedMethodExecuted++;
-            }
-
-            void packageMethod() {
-                packageMethodExecuted++;
-            }
-
-            @SuppressWarnings({"UnusedDeclaration"})
-            private void privateMethod() {
-                privateMethodExecuted++;
-            }
-        }
-
-        private class ParentMock {
-            public void inheritedMethod() {
-                inheritedMethodExecuted++;
-            }
-        }
-
-        private int publicMethodExecuted;
-        private int protectedMethodExecuted;
-        private int packageMethodExecuted;
-        private int privateMethodExecuted;
-
-        private int inheritedMethodExecuted;
-
+        private VisibilityRulesTargetMock target;
         private CommandExecuter exec;
 
         public Object create() {
-            TargetMock target = new TargetMock();
+            target = new VisibilityRulesTargetMock();
             exec = new CommandExecuter(target);
             return null;
         }
 
         public void shouldAllowCallingOnlyPublicMethods() {
             exec.execute("public method");
-            specify(publicMethodExecuted, should.equal(1));
+            specify(target.publicMethodExecuted, should.equal(1));
         }
 
         public void shouldNotAllowCallingProtectedMethods() {
@@ -486,7 +487,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                     exec.execute("protected method");
                 }
             }, should.raise(CommandNotFoundException.class));
-            specify(protectedMethodExecuted, should.equal(0));
+            specify(target.protectedMethodExecuted, should.equal(0));
         }
 
         public void shouldNotAllowCallingPackagePrivateMethods() {
@@ -495,7 +496,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                     exec.execute("package method");
                 }
             }, should.raise(CommandNotFoundException.class));
-            specify(packageMethodExecuted, should.equal(0));
+            specify(target.packageMethodExecuted, should.equal(0));
         }
 
         public void shouldNotAllowCallingPrivateMethods() {
@@ -504,7 +505,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                     exec.execute("private method");
                 }
             }, should.raise(CommandNotFoundException.class));
-            specify(privateMethodExecuted, should.equal(0));
+            specify(target.privateMethodExecuted, should.equal(0));
         }
 
         public void shouldNotAllowCallingMethodsInTheSuperclass() {
@@ -513,7 +514,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                     exec.execute("inherited method");
                 }
             }, should.raise(CommandNotFoundException.class));
-            specify(inheritedMethodExecuted, should.equal(0));
+            specify(target.inheritedMethodExecuted, should.equal(0));
         }
     }
 
@@ -526,4 +527,5 @@ public class CommandExecuterSpec extends Specification<Object> {
     /* TODO: support for priorizing overloaded methods according to parameter types
        (double > long > integer > character > string etc.)
        and move overloaded method tests to their own context */
+
 }
