@@ -429,7 +429,91 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("exception thrower");
                 }
-            }, should.raiseExactly(CommandTargetException.class, "exception was thrown: java.lang.IllegalStateException: some exception"));
+            }, should.raise(CommandTargetException.class, "exception was thrown: java.lang.IllegalStateException: some exception"));
+        }
+    }
+
+    public class VisibilityAndInheritanceRules {
+
+        private class TargetMock extends ParentMock {
+            public void publicMethod() {
+                publicMethodExecuted++;
+            }
+
+            protected void protectedMethod() {
+                protectedMethodExecuted++;
+            }
+
+            void packageMethod() {
+                packageMethodExecuted++;
+            }
+
+            @SuppressWarnings({"UnusedDeclaration"})
+            private void privateMethod() {
+                privateMethodExecuted++;
+            }
+        }
+
+        private class ParentMock {
+            public void inheritedMethod() {
+                inheritedMethodExecuted++;
+            }
+        }
+
+        private int publicMethodExecuted;
+        private int protectedMethodExecuted;
+        private int packageMethodExecuted;
+        private int privateMethodExecuted;
+
+        private int inheritedMethodExecuted;
+
+        private CommandExecuter exec;
+
+        public Object create() {
+            TargetMock target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldAllowCallingOnlyPublicMethods() {
+            exec.execute("public method");
+            specify(publicMethodExecuted, should.equal(1));
+        }
+
+        public void shouldNotAllowCallingProtectedMethods() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("protected method");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(protectedMethodExecuted, should.equal(0));
+        }
+
+        public void shouldNotAllowCallingPackageMethods() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("package method");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(packageMethodExecuted, should.equal(0));
+        }
+
+        public void shouldNotAllowCallingPrivateMethods() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("private method");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(privateMethodExecuted, should.equal(0));
+        }
+
+        public void shouldNotAllowCallingMethodsInTheSuperclass() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("inherited method");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(inheritedMethodExecuted, should.equal(0));
         }
     }
 

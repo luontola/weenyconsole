@@ -3,6 +3,7 @@ package net.orfjackal.weenyconsole;
 import javax.lang.model.SourceVersion;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,21 +38,27 @@ public class CommandExecuter {
             }
             throw new CommandNotFoundException(command);
 
-        } catch (CommandExecutionException e) {         // invalid command or command not found
+        } catch (CommandExecutionException e) {     // invalid command or command not found
             throw e;
-        } catch (InvocationTargetException e) {         // target method threw an exception
+        } catch (InvocationTargetException e) {     // target method threw an exception
             throw new CommandTargetException(command, e.getTargetException(), e);
-        } catch (IllegalAccessException e) {            // should never happen - caused by restricted Java VM
+        } catch (IllegalAccessException e) {        // should never happen - caused by restricted Java VM or a bug
             e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (RuntimeException e) {                  // should never happen - caused by a bug in this program
+            throw new CommandExecutionException(command, "internal error: " + e.getMessage(), e);
+        } catch (RuntimeException e) {              // should never happen - caused by a bug in this program
             e.printStackTrace();
-            throw new CommandExecutionException(command, "internal error", e);
+            throw new CommandExecutionException(command, "internal error: " + e.getMessage(), e);
         }
     }
 
     private Method[] possibleMethods() {
-        return target.getClass().getMethods();
+        List<Method> result = new ArrayList<Method>();
+        for (Method method : target.getClass().getDeclaredMethods()) {
+            if (Modifier.isPublic(method.getModifiers())) {
+                result.add(method);
+            }
+        }
+        return result.toArray(new Method[result.size()]);
     }
 
     private static List<MethodCall> possibleMethodCalls(String[] words) {
