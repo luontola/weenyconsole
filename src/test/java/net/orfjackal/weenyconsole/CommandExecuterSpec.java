@@ -429,7 +429,8 @@ public class CommandExecuterSpec extends Specification<Object> {
                 public void run() throws Throwable {
                     exec.execute("exception thrower");
                 }
-            }, should.raise(CommandTargetException.class, "exception was thrown: java.lang.IllegalStateException: some exception"));
+            }, should.raise(CommandTargetException.class, "exception was thrown: " +
+                    "java.lang.IllegalStateException: some exception"));
         }
     }
 
@@ -457,7 +458,8 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    private static class InheritanceRulesParentMock extends InheritanceRulesSuperParentMock implements CommandService {
+    private static class InheritanceRulesParentMock
+            extends InheritanceRulesSuperParentMock implements CommandService {
         public int inheritedAllowedMethodExecuted;
 
         public void inheritedAllowedMethod() {
