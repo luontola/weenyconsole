@@ -531,7 +531,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldNotAllowCallingPrivateMethods() {
-//            exec.execute("wait"); // TODO: debug
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("private method");
@@ -549,18 +548,18 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(VisibilityRulesTargetMock.staticMethodExecuted, should.equal(0));
         }
 
-        public void shouldNotAllowCallingInheritedMethods() {
+        public void shouldAllowCallingMethodsInheritedFromClassesWhichImplementTheMarkerInterface() {
+            exec.execute("inherited allowed method");
+            specify(target.inheritedAllowedMethodExecuted, should.equal(1));
+        }
+
+        public void shouldNotAllowCallingAnyOtherInheritedMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("inherited unallowed method");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.inheritedUnallowedMethodExecuted, should.equal(0));
-        }
-
-        public void shouldAllowCallingInheritedMethodsWhenTheyImplementTheMarkerInterface() {
-            exec.execute("inherited allowed method");
-            specify(target.inheritedAllowedMethodExecuted, should.equal(1));
         }
     }
 
