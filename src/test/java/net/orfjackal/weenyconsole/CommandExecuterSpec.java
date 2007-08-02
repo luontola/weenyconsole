@@ -403,6 +403,44 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    public class CommandsWithVarargParameters {
+
+        private class TargetMock implements CommandService {
+            private String normalParam;
+            private String[] varargParams;
+
+            public void vararg(String... varargs) {
+                varargParams = varargs;
+            }
+
+            public void mixedVararg(String normal, String... varargs) {
+                normalParam = normal;
+                varargParams = varargs;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldSupportVarargParameters() {
+            exec.execute("vararg one two three");
+            specify(target.normalParam, should.equal(null));
+            specify(target.varargParams, should.containInOrder("one", "two", "three"));
+        }
+
+        public void shouldSupportMixingNormalAndVarargParameters() {
+            exec.execute("mixed vararg zero one two three");
+            specify(target.normalParam, should.equal("zero"));
+            specify(target.varargParams, should.containInOrder("one", "two", "three"));
+        }
+    }
+
     public class MultiWordCommands {
 
         private class TargetMock implements CommandService {
@@ -708,7 +746,6 @@ public class CommandExecuterSpec extends Specification<Object> {
     }
 
     // TODO: support for varargs
-    // TODO: overloaded methods with different number of parameters
     /* TODO: support for priorizing overloaded methods according to parameter types
        (double > long > integer > character > string etc.)
        and move overloaded method tests to their own context */
