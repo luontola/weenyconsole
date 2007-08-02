@@ -406,16 +406,41 @@ public class CommandExecuterSpec extends Specification<Object> {
             }, should.raise(CommandNotFoundException.class));
             specify(target.nullCheckExecuted, should.equal(0));
         }
-
-        // TODO: handle the case when the target method throws an exception
-        // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
-        // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
-        // TODO: support providing factory classes for objects which do not have a string constructor
-        // TODO: support for enum classes
-        // TODO: support for varargs
-        // TODO: overloaded methods with different number of parameters
-        /* TODO: support for priorizing overloaded methods according to parameter types
-           (double > long > integer > character > string etc.)
-           and move overloaded method tests to their own context */
     }
+
+    public class WhenTheTargetMethodThrowsAnException {
+
+        private class TargetMock {
+            public void exceptionThrower() {
+                throw new IllegalStateException("some exception");
+            }
+        }
+
+        private CommandExecuter exec;
+
+        public Object create() {
+            TargetMock target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void itShouldBeWrappedAndRethrownToTheUser() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("exception thrower");
+                }
+            }, should.raiseExactly(CommandTargetException.class, "exception was thrown: java.lang.IllegalStateException: some exception"));
+        }
+    }
+
+    // TODO: handle the case when the target method throws an exception
+    // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
+    // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
+    // TODO: support providing factory classes for objects which do not have a string constructor
+    // TODO: support for enum classes
+    // TODO: support for varargs
+    // TODO: overloaded methods with different number of parameters
+    /* TODO: support for priorizing overloaded methods according to parameter types
+       (double > long > integer > character > string etc.)
+       and move overloaded method tests to their own context */
 }

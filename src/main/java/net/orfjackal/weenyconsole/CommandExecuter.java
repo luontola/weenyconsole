@@ -50,10 +50,7 @@ public class CommandExecuter {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             // target method threw an exception
-            Throwable t = e.getTargetException();
-            t.printStackTrace();
-            // TODO: create a new exception type for this
-            throw new CommandExecutionException(command, "command threw an exception: " + t.getMessage(), t);
+            throw new CommandTargetException(command, e.getTargetException(), e);
         }
     }
 
