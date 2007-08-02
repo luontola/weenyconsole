@@ -91,24 +91,40 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.barParameter2, should.equal("z"));
         }
 
-        public void shouldNotCareAboutEmptySpaceBetweenWords() {
+        public void shouldNotAllowUsingTooFewParameters() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo");
+                }
+            }, should.raise(CommandNotFoundException.class));
+        }
+
+        public void shouldNotAllowUsingTooManyParameters() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("foo too many");
+                }
+            }, should.raise(CommandNotFoundException.class));
+        }
+
+        public void shouldNotCareAboutEmptySpaceBetweenParameters() {
             exec.execute(" bar y  z ");
             specify(target.barParameter1, should.equal("y"));
             specify(target.barParameter2, should.equal("z"));
         }
 
-        public void shouldSupportMultipleWordsInDoubleQuotes() {
+        public void shouldSupportMultipleWordsPerParameterInDoubleQuotes() {
             exec.execute("foo \"two words\"");
             specify(target.fooParameter, should.equal("two words"));
         }
 
-        public void shouldSupportMultipleWordsUsingEscapeSequences() {
+        public void shouldSupportMultipleWordsPerParameterUsingEscapeSequences() {
             exec.execute("foo two\\ words");
             specify(target.fooParameter, should.equal("two words"));
         }
 
         public void shouldSupportMixingDoubleQuotesAndEscapeSequences() {
-            exec.execute("foo \"escape char is \\\\ and quote char is \\\"\"");
+            exec.execute("foo \"escape char is \\\\ and\\ quote char is \\\"\"");
             specify(target.fooParameter, should.equal("escape char is \\ and quote char is \""));
         }
 
@@ -128,7 +144,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooParameter, should.equal(null));
         }
 
-        public void shouldNotAllowNullAsPartOfAWord() {
+        public void shouldNotAllowNullAsAPartOfAWord() {
             target.fooParameter = "initial value";
             specify(new Block() {
                 public void run() throws Throwable {
@@ -168,22 +184,6 @@ public class CommandExecuterSpec extends Specification<Object> {
             }, should.raise(MalformedCommandException.class, "" +
                     "escape sequence expected: foo escape_char_has_nothing_to_escape\\\n" +
                     "                                                                ^"));
-        }
-
-        public void shouldNotAllowUsingTooFewParameters() {
-            specify(new Block() {
-                public void run() throws Throwable {
-                    exec.execute("foo");
-                }
-            }, should.raise(CommandNotFoundException.class));
-        }
-
-        public void shouldNotAllowUsingTooManyParameters() {
-            specify(new Block() {
-                public void run() throws Throwable {
-                    exec.execute("foo too many");
-                }
-            }, should.raise(CommandNotFoundException.class));
         }
     }
 
