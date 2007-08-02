@@ -66,13 +66,13 @@ class MethodCall {
                 }
                 parameters[types.length - 1] = varargParams.toArray((Object[]) Array.newInstance(varargType, 0));
 
-            } else if (types.length != words.length) {
-                return null;
-            } else {
+            } else if (types.length == words.length) {
                 int i = types.length - 1;
                 if (i >= 0) {
                     parameters[i] = convertToType(words[i], types[i]);
                 }
+            } else {
+                return null;
             }
 
             System.out.println("parameters = " + Arrays.toString(parameters));
