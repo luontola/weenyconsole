@@ -4,8 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Esko Luontola
@@ -43,14 +42,22 @@ class MethodCall {
 
     private Object[] parametersForMethod(Method method, String[] words) {
         try {
+
+
             Class<?>[] types = method.getParameterTypes();
-            if (method.isVarArgs() && words.length >= (types.length - 1)) {
+            System.out.println("words = " + Arrays.toString(words));
+            System.out.println("types = " + Arrays.toString(types));
+            if (words.length < (types.length - 1)) {
+                return null;
+            }
 
-                Object[] parameters = new Object[types.length];
-                for (int i = 0; i < (types.length - 1); i++) { // non-vararg parameters
-                    parameters[i] = convertToType(words[i], types[i]);
-                }
+            Object[] parameters = new Object[types.length];
+            for (int i = 0; i < (types.length - 1); i++) { // surely non-vararg parameters
+                parameters[i] = convertToType(words[i], types[i]);
+            }
 
+
+            if (method.isVarArgs()) {
                 Class<?> varargArrayType = types[types.length - 1];
                 Class<?> varargType = varargArrayType.getComponentType();
                 List<Object> varargParams = new ArrayList<Object>();
@@ -58,15 +65,18 @@ class MethodCall {
                     varargParams.add(convertToType(words[i], varargType));
                 }
                 parameters[types.length - 1] = varargParams.toArray((Object[]) Array.newInstance(varargType, 0));
-                return parameters;
-            }
-            if (types.length != words.length) {
+
+            } else if (types.length != words.length) {
                 return null;
+            } else {
+                int i = types.length - 1;
+                if (i >= 0) {
+                    parameters[i] = convertToType(words[i], types[i]);
+                }
             }
-            Object[] parameters = new Object[words.length];
-            for (int i = 0; i < types.length; i++) {
-                parameters[i] = convertToType(words[i], types[i]);
-            }
+
+            System.out.println("parameters = " + Arrays.toString(parameters));
+
             return parameters;
 
         } catch (ConversionFailedException e) {
@@ -82,7 +92,7 @@ class MethodCall {
             return null;
         }
         if (targetType.isPrimitive()) {
-            targetType = primitiveToWrapperType(targetType.getName());
+            targetType = primitiveToWrapperType(targetType);
         }
         if (targetType.equals(Boolean.class)
                 && !sourceValue.equals(Boolean.toString(true))
@@ -111,27 +121,22 @@ class MethodCall {
         }
     }
 
-    private static Class<?> primitiveToWrapperType(String name) {
-        Class<?> wrapper;
-        if (name.equals("boolean")) {
-            wrapper = Boolean.class;
-        } else if (name.equals("byte")) {
-            wrapper = Byte.class;
-        } else if (name.equals("char")) {
-            wrapper = Character.class;
-        } else if (name.equals("short")) {
-            wrapper = Short.class;
-        } else if (name.equals("int")) {
-            wrapper = Integer.class;
-        } else if (name.equals("long")) {
-            wrapper = Long.class;
-        } else if (name.equals("float")) {
-            wrapper = Float.class;
-        } else if (name.equals("double")) {
-            wrapper = Double.class;
-        } else {
-            throw new IllegalArgumentException(name);
-        }
-        return wrapper;
+    private static Map<Class<?>, Class<?>> primitiveWrappers;
+
+    static {
+        HashMap<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+        map.put(Boolean.TYPE, Boolean.class);
+        map.put(Character.TYPE, Character.class);
+        map.put(Byte.TYPE, Byte.class);
+        map.put(Short.TYPE, Short.class);
+        map.put(Integer.TYPE, Integer.class);
+        map.put(Long.TYPE, Long.class);
+        map.put(Float.TYPE, Float.class);
+        map.put(Double.TYPE, Double.class);
+        primitiveWrappers = Collections.unmodifiableMap(map);
+    }
+
+    private static Class<?> primitiveToWrapperType(Class<?> targetType) {
+        return primitiveWrappers.get(targetType);
     }
 }
