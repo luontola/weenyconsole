@@ -566,7 +566,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldAllowCallingOnlyPublicMethods() {
+        public void shouldAllowCallingOnlyPublicInstanceMethods() {
             exec.execute("public method");
             specify(target.publicMethodExecuted, should.equal(1));
         }
