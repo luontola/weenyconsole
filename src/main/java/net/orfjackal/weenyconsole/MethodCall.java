@@ -4,7 +4,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Esko Luontola
@@ -40,88 +43,93 @@ class MethodCall {
         return parametersForMethod(method, parameters) != null;
     }
 
-    private Object[] parametersForMethod(Method method, String[] words) {
+    private Object[] parametersForMethod(Method method, String[] srcValues) {
         try {
+            Class<?>[] destTypes = method.getParameterTypes();
+            Object[] destValues = new Object[destTypes.length];
 
-
-            Class<?>[] types = method.getParameterTypes();
-            System.out.println("words = " + Arrays.toString(words));
-            System.out.println("types = " + Arrays.toString(types));
-            if (words.length < (types.length - 1)) {
+            int lastIndex = destTypes.length - 1;
+            if (srcValues.length < lastIndex) {
+                // not enough srcValues for even a varargs method (with zero vararg parameters)
                 return null;
             }
-
-            Object[] parameters = new Object[types.length];
-            for (int i = 0; i < (types.length - 1); i++) { // surely non-vararg parameters
-                parameters[i] = convertToType(words[i], types[i]);
-            }
-
+            convertToTypes(srcValues, destTypes, destValues, lastIndex);
 
             if (method.isVarArgs()) {
-                Class<?> varargArrayType = types[types.length - 1];
-                Class<?> varargType = varargArrayType.getComponentType();
-                List<Object> varargParams = new ArrayList<Object>();
-                for (int i = (types.length - 1); i < words.length; i++) { // vararg parameters
-                    varargParams.add(convertToType(words[i], varargType));
-                }
-                parameters[types.length - 1] = toArray(varargParams, varargType);
+                // last type is a vararg parameter
+                destValues[lastIndex] = convertVarargs(srcValues, destTypes);
 
-            } else if (types.length == words.length) {
-                int i = types.length - 1;
-                if (i >= 0) {
-                    parameters[i] = convertToType(words[i], types[i]);
+            } else if (destTypes.length == srcValues.length) {
+                // last type is a normal parameter
+                if (lastIndex >= 0) {
+                    destValues[lastIndex] = convertToType(srcValues[lastIndex], destTypes[lastIndex]);
                 }
             } else {
+                // non-vararg method has wrong number of arguments
                 return null;
             }
-
-            System.out.println("parameters = " + Arrays.toString(parameters));
-
-            return parameters;
+            return destValues;
 
         } catch (ConversionFailedException e) {
             return null;
         }
     }
 
-    private static Object[] toArray(List<?> items, Class<?> typeOfItems) {
-        return items.toArray((Object[]) Array.newInstance(typeOfItems, items.size()));
+    private Object[] convertVarargs(String[] origSrcValues, Class<?>[] origDestTypes) throws ConversionFailedException {
+        Class<?> destType = origDestTypes[origDestTypes.length - 1].getComponentType();
+        int count = origSrcValues.length - origDestTypes.length + 1;
+
+        // temporary arrays for varargs, so that we can call convertToType
+        Class<?>[] destTypes = new Class<?>[count];
+        String[] srcValues = new String[count];
+        Object[] destValues = (Object[]) Array.newInstance(destType, count);
+        Arrays.fill(destTypes, destType);
+        System.arraycopy(origSrcValues, origDestTypes.length - 1, srcValues, 0, srcValues.length);
+
+        convertToTypes(srcValues, destTypes, destValues, destTypes.length);
+        return destValues;
     }
 
-    private Object convertToType(String sourceValue, Class<?> targetType) throws ConversionFailedException {
-        if (sourceValue == null) {
-            if (targetType.isPrimitive()) {
-                throw new ConversionFailedException(sourceValue, targetType);
+    private void convertToTypes(String[] srcValues, Class<?>[] destTypes, Object[] destValues, int limit) throws ConversionFailedException {
+        for (int i = 0; i < limit; i++) {
+            destValues[i] = convertToType(srcValues[i], destTypes[i]);
+        }
+    }
+
+    private Object convertToType(String srcValue, Class<?> destType) throws ConversionFailedException {
+        if (srcValue == null) {
+            if (destType.isPrimitive()) {
+                throw new ConversionFailedException(srcValue, destType);
             }
             return null;
         }
-        if (targetType.isPrimitive()) {
-            targetType = primitiveToWrapperType(targetType);
+        if (destType.isPrimitive()) {
+            destType = primitiveToWrapperType(destType);
         }
-        if (targetType.equals(Boolean.class)
-                && !sourceValue.equals(Boolean.toString(true))
-                && !sourceValue.equals(Boolean.toString(false))) {
-            throw new ConversionFailedException(sourceValue, targetType);
+        if (destType.equals(Boolean.class)
+                && !srcValue.equals(Boolean.toString(true))
+                && !srcValue.equals(Boolean.toString(false))) {
+            throw new ConversionFailedException(srcValue, destType);
         }
-        if (targetType.equals(Character.class) && sourceValue.length() == 1) {
-            return sourceValue.charAt(0);
+        if (destType.equals(Character.class) && srcValue.length() == 1) {
+            return srcValue.charAt(0);
         }
-        if (targetType.isEnum()) {
-            for (Enum<?> e : (Enum<?>[]) targetType.getEnumConstants()) {
-                if (e.name().equals(sourceValue)) {
+        if (destType.isEnum()) {
+            for (Enum<?> e : (Enum<?>[]) destType.getEnumConstants()) {
+                if (e.name().equals(srcValue)) {
                     return e;
                 }
             }
         }
         try {
-            if (factory != null && factory.canCreateInstancesOf(targetType)) {
-                return factory.createNewInstanceFrom(sourceValue);
+            if (factory != null && factory.canCreateInstancesOf(destType)) {
+                return factory.createNewInstanceFrom(srcValue);
             }
-            Constructor<?> constructor = targetType.getConstructor(String.class);
-            return constructor.newInstance(sourceValue);
+            Constructor<?> constructor = destType.getConstructor(String.class);
+            return constructor.newInstance(srcValue);
 
         } catch (Exception e) {
-            throw new ConversionFailedException(sourceValue, targetType, e);
+            throw new ConversionFailedException(srcValue, destType, e);
         }
     }
 
