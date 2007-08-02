@@ -369,8 +369,8 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldSupportEnumsAsAParameter() {
-            exec.execute("enum method FOO");
-            specify(target.enumMethodParam, should.equal(MyEnum.FOO));
+            exec.execute("enum method BAR");
+            specify(target.enumMethodParam, should.equal(MyEnum.BAR));
         }
     }
 
