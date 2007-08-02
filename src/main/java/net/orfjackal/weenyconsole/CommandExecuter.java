@@ -37,20 +37,16 @@ public class CommandExecuter {
             }
             throw new CommandNotFoundException(command);
 
-        } catch (CommandExecutionException e) {
-            // invalid command
-            System.err.println(e.getMessage());
+        } catch (CommandExecutionException e) {         // invalid command or command not found
             throw e;
-        } catch (RuntimeException e) {
-            // should never happen - caused by a bug in this program
+        } catch (InvocationTargetException e) {         // target method threw an exception
+            throw new CommandTargetException(command, e.getTargetException(), e);
+        } catch (IllegalAccessException e) {            // should never happen - caused by restricted Java VM
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (RuntimeException e) {                  // should never happen - caused by a bug in this program
             e.printStackTrace();
             throw new CommandExecutionException(command, "internal error", e);
-        } catch (IllegalAccessException e) {
-            // should never happen - caused by restricted Java VM
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            // target method threw an exception
-            throw new CommandTargetException(command, e.getTargetException(), e);
         }
     }
 

@@ -433,7 +433,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: handle the case when the target method throws an exception
     // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
     // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
     // TODO: support providing factory classes for objects which do not have a string constructor
