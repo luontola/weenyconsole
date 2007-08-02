@@ -572,5 +572,7 @@ public class CommandExecuterSpec extends Specification<Object> {
     /* TODO: support for priorizing overloaded methods according to parameter types
        (double > long > integer > character > string etc.)
        and move overloaded method tests to their own context */
-
+    // TODO: should show a help message when using wrong number of parameters
+    // TODO: should show a help message when using wrong types of parameters
+    // TODO: should show possible values for enums in the help message
 }
