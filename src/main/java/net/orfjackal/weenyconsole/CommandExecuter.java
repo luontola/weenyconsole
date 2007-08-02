@@ -63,9 +63,6 @@ public class CommandExecuter {
     }
 
     private static boolean implementsTheMarkerInterface(Method method) {
-//        if (true) {
-//            return true; // TODO: debug
-//        }
         return CommandService.class.isAssignableFrom(method.getDeclaringClass());
     }
 
