@@ -456,6 +456,7 @@ public class CommandExecuterSpec extends Specification<Object> {
          * The program must handle silently all exceptions thrown by a constructor.
          */
         public void shouldNotCallMethodsToWhichTheParameterCanNotBeConverted() {
+            // TODO: this test could moved to "Commands with object parameters"
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("constructor error not_int");
@@ -465,6 +466,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldChooseFromOverloadedMethodsTheOneToWhichTheParametersCanBeConvertedV1() {
+            // TODO: these two test could be moved to a new context for overloaded methods, when more tests are added
             exec.execute("overloaded 42");
             specify(target.overloadedInt, should.equal(42));
             specify(target.overloadedBoolean, should.equal(null));
