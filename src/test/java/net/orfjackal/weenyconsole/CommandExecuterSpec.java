@@ -489,7 +489,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(protectedMethodExecuted, should.equal(0));
         }
 
-        public void shouldNotAllowCallingPackageMethods() {
+        public void shouldNotAllowCallingPackagePrivateMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("package method");
