@@ -445,6 +445,16 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.normalParam, should.equal(null));
             specify(target.varargParams, should.containInOrder());
         }
+
+        public void shouldNotAllowTooFewParameters() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("mixed vararg");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.normalParam, should.equal(null));
+            specify(target.varargParams, should.equal(null));
+        }
     }
 
     public class MultiWordCommands {
