@@ -332,13 +332,13 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.constructorParam.value, should.equal("foo"));
         }
 
-        public void shouldSupportOtherObjectsAsAParameterIfAFactoryIsProvided() {
+        public void shouldSupportOtherObjectsAsAParameterWhenAFactoryIsProvided() {
             exec.setConstructorFactory(new PointConstructorFactory());
             exec.execute("factory 1,2");
             specify(target.factoryParam, should.equal(new Point(1, 2)));
         }
 
-        public void theFactoryShouldTakePriorityOverTheDefaultConstructor() {
+        public void theFactoryShouldTakePriorityOverTheConstructor() {
             exec.setConstructorFactory(new DoublingIntegerConstructorFactory());
             exec.execute("integer 3");
             specify(target.integerParam, should.equal(6));
@@ -526,7 +526,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    private static class VisibilityRulesTargetMock extends InheritanceRulesParentMock {
+    private static class VisibilityRulesTargetMock implements CommandService {
         public int publicMethodExecuted;
         public int protectedMethodExecuted;
         public int packageMethodExecuted;
@@ -555,24 +555,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    private static class InheritanceRulesParentMock
-            extends InheritanceRulesSuperParentMock implements CommandService {
-        public int inheritedAllowedMethodExecuted;
-
-        public void inheritedAllowedMethod() {
-            inheritedAllowedMethodExecuted++;
-        }
-    }
-
-    private static class InheritanceRulesSuperParentMock {
-        public int inheritedUnallowedMethodExecuted;
-
-        public void inheritedUnallowedMethod() {
-            inheritedUnallowedMethodExecuted++;
-        }
-    }
-
-    public class VisibilityAndInheritanceRules {
+    public class VisibilityRules {
 
         private VisibilityRulesTargetMock target;
         private CommandExecuter exec;
@@ -622,6 +605,37 @@ public class CommandExecuterSpec extends Specification<Object> {
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(VisibilityRulesTargetMock.staticMethodExecuted, should.equal(0));
+        }
+    }
+
+    public class InheritanceRules {
+
+        private class TargetMock extends ParentMock {
+        }
+
+        private class ParentMock extends SuperParentMock implements CommandService {
+            public int inheritedAllowedMethodExecuted;
+
+            public void inheritedAllowedMethod() {
+                inheritedAllowedMethodExecuted++;
+            }
+        }
+
+        private class SuperParentMock {
+            public int inheritedUnallowedMethodExecuted;
+
+            public void inheritedUnallowedMethod() {
+                inheritedUnallowedMethodExecuted++;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
         }
 
         public void shouldAllowCallingMethodsInheritedFromClassesWhichImplementTheMarkerInterface() {
