@@ -3,6 +3,7 @@ package net.orfjackal.weenyconsole;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @author Esko Luontola
@@ -38,6 +39,8 @@ class MethodCall {
 
     private static Object[] parametersForMethod(Method method, String[] words) {
         try {
+            System.out.println("method = " + method);
+            System.out.println("words = " + Arrays.toString(words));
             Class<?>[] types = method.getParameterTypes();
             Object[] parameters = new Object[words.length];
             for (int i = 0; i < types.length; i++) {

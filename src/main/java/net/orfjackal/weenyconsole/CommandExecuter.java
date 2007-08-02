@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class CommandExecuter {
 
-    private Object target;
+    private CommandService target;
 
-    public CommandExecuter(Object target) {
+    public CommandExecuter(CommandService target) {
         this.target = target;
     }
 
@@ -54,16 +54,24 @@ public class CommandExecuter {
     private Method[] possibleMethods() {
         List<Method> result = new ArrayList<Method>();
         for (Method method : target.getClass().getMethods()) {
-            if (Modifier.isPublic(method.getModifiers())
-                    && implementsTheMarkerInterface(method.getDeclaringClass())) {
+            if (implementsTheMarkerInterface(method)
+                    && isPublicInstanceMethod(method)) {
                 result.add(method);
             }
         }
         return result.toArray(new Method[result.size()]);
     }
 
-    private static boolean implementsTheMarkerInterface(Class<?> cls) {
-        return CommandService.class.isAssignableFrom(cls);
+    private static boolean implementsTheMarkerInterface(Method method) {
+//        if (true) {
+//            return true; // TODO: debug
+//        }
+        return CommandService.class.isAssignableFrom(method.getDeclaringClass());
+    }
+
+    private static boolean isPublicInstanceMethod(Method method) {
+        return Modifier.isPublic(method.getModifiers())
+                && !Modifier.isStatic(method.getModifiers());
     }
 
     private static List<MethodCall> possibleMethodCalls(String[] words) {

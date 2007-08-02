@@ -439,6 +439,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public int protectedMethodExecuted;
         public int packageMethodExecuted;
         public int privateMethodExecuted;
+        private static int staticMethodExecuted;
 
         public void publicMethod() {
             publicMethodExecuted++;
@@ -455,6 +456,10 @@ public class CommandExecuterSpec extends Specification<Object> {
         @SuppressWarnings({"UnusedDeclaration"})
         private void privateMethod() {
             privateMethodExecuted++;
+        }
+
+        public static void staticMethod() {
+            staticMethodExecuted++;
         }
     }
 
@@ -510,12 +515,22 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldNotAllowCallingPrivateMethods() {
+//            exec.execute("wait"); // TODO: debug
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("private method");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.privateMethodExecuted, should.equal(0));
+        }
+
+        public void shouldNotAllowCallingStaticMethods() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("static method");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(VisibilityRulesTargetMock.staticMethodExecuted, should.equal(0));
         }
 
         public void shouldNotAllowCallingInheritedMethods() {
@@ -533,7 +548,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: should not call equals() and other unwanted methods from superclasses (use a marker interface)
     // TODO: shouldSupportAnyObjectsWithAStringConstructorAsAParameter
     // TODO: support providing factory classes for objects which do not have a string constructor
     // TODO: support for enum classes
