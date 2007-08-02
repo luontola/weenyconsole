@@ -351,6 +351,8 @@ public class CommandExecuterSpec extends Specification<Object> {
             private int methodOneExecuted;
             private int methodOneMoreExecuted;
             private int methodTwoValue;
+            private int longLongerExecuted;
+            private int longLongerLongestExecuted;
 
             public void methodOne() {
                 methodOneExecuted++;
@@ -363,6 +365,15 @@ public class CommandExecuterSpec extends Specification<Object> {
             public void methodTwo(int x) {
                 methodTwoValue = x;
             }
+
+            @SuppressWarnings({"UnusedDeclaration"})
+            public void longLonger(String s) {
+                longLongerExecuted++;
+            }
+
+            public void longLongerLongest() {
+                longLongerLongestExecuted++;
+            }
         }
 
         private TargetMock target;
@@ -374,7 +385,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             return null;
         }
 
-        public void shouldCallAMethodWithAllTheWordsInItsName() {
+        public void shouldCallAMethodWhoseNameHasAllTheWords() {
             exec.execute("method one");
             specify(target.methodOneExecuted, should.equal(1));
         }
@@ -388,28 +399,22 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("method one more");
             specify(target.methodOneMoreExecuted, should.equal(1));
         }
+
+        public void shouldPrioritizeTheMethodWithTheLongestName() {
+            exec.execute("long longer longest");
+            specify(target.longLongerLongestExecuted, should.equal(1));
+            specify(target.longLongerExecuted, should.equal(0));
+        }
     }
 
     public class InACornerSituationTheCommandExecuter {
 
         private class TargetMock implements CommandService {
-            private int oneExecuted;
-            private String oneValue;
-            private int oneMoreExecuted;
             private Integer constructorErrorValue;
             private Integer overloadedInt;
             private Boolean overloadedBoolean;
             private Boolean booleanCaseValue;
             private int nullCheckExecuted;
-
-            public void one(String more) {
-                oneExecuted++;
-                oneValue = more;
-            }
-
-            public void oneMore() {
-                oneMoreExecuted++;
-            }
 
             public void constructorError(int x) {
                 constructorErrorValue = x;
@@ -443,13 +448,6 @@ public class CommandExecuterSpec extends Specification<Object> {
             target = new TargetMock();
             exec = new CommandExecuter(target);
             return null;
-        }
-
-        public void shouldPrioritizeTheMethodWithTheLongestName() {
-            exec.execute("one more");
-            specify(target.oneMoreExecuted, should.equal(1));
-            specify(target.oneExecuted, should.equal(0));
-            specify(target.oneValue, should.equal(null));
         }
 
         /**
