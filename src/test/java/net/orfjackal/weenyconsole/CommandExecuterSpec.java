@@ -439,6 +439,12 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.normalParam, should.equal("zero"));
             specify(target.varargParams, should.containInOrder("one", "two", "three"));
         }
+
+        public void shouldAllowZeroLengthVarargParameters() {
+            exec.execute("vararg");
+            specify(target.normalParam, should.equal(null));
+            specify(target.varargParams, should.containInOrder());
+        }
     }
 
     public class MultiWordCommands {
@@ -745,7 +751,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: support for varargs
     /* TODO: support for priorizing overloaded methods according to parameter types
        (double > long > integer > character > string etc.)
        and move overloaded method tests to their own context */

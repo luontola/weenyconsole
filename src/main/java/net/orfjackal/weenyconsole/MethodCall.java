@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,8 +45,6 @@ class MethodCall {
         try {
             Class<?>[] types = method.getParameterTypes();
             if (method.isVarArgs() && words.length >= (types.length - 1)) {
-                System.out.println("types = " + Arrays.toString(types));
-                System.out.println("words = " + Arrays.toString(words));
 
                 Object[] parameters = new Object[types.length];
                 for (int i = 0; i < (types.length - 1); i++) { // non-vararg parameters
@@ -61,7 +58,6 @@ class MethodCall {
                     varargParams.add(convertToType(words[i], varargType));
                 }
                 parameters[types.length - 1] = varargParams.toArray((Object[]) Array.newInstance(varargType, 0));
-                System.out.println("parameters = " + Arrays.toString(parameters));
                 return parameters;
             }
             if (types.length != words.length) {
