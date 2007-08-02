@@ -345,6 +345,35 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    private enum MyEnum {
+        FOO, BAR
+    }
+
+    public class CommandsWithEnumParameters {
+
+        private class TargetMock implements CommandService {
+            private MyEnum enumMethodParam;
+
+            public void enumMethod(MyEnum x) {
+                enumMethodParam = x;
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldSupportEnumsAsAParameter() {
+            exec.execute("enum method FOO");
+            specify(target.enumMethodParam, should.equal(MyEnum.FOO));
+        }
+    }
+
     public class MultiWordCommands {
 
         private class TargetMock implements CommandService {

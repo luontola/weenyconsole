@@ -73,6 +73,13 @@ class MethodCall {
         if (targetType.equals(Character.class) && sourceValue.length() == 1) {
             return sourceValue.charAt(0);
         }
+        if (targetType.isEnum()) {
+            for (Enum<?> e : (Enum<?>[]) targetType.getEnumConstants()) {
+                if (e.name().equals(sourceValue)) {
+                    return e;
+                }
+            }
+        }
         try {
             if (factory != null && factory.canCreateInstancesOf(targetType)) {
                 return factory.createNewInstanceFrom(sourceValue);
