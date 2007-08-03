@@ -3,7 +3,6 @@ package net.orfjackal.weenyconsole;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
 import java.awt.*;
@@ -44,31 +43,4 @@ public class ConverterSpec extends Specification<Converter> {
             }, should.raise(ConversionFailedException.class));
         }
     }
-
-    public class DelegatedConversion {
-
-        private DelegatingConverter delegator;
-        private Converter converter;
-
-        public Converter create() {
-            delegator = new DelegatingConverter(Integer.class, Double.class);
-            converter = mock(Converter.class);
-            final ConverterProvider provider = new ConverterProvider();
-            checking(new Expectations() {{
-                one(converter).supportedTargetType(); will(returnValue(Double.class));
-                one(converter).setProvider(provider);
-            }});
-            provider.addConverter(delegator);
-            provider.addConverter(converter);
-            return delegator;
-        }
-
-        public void shouldUseAnotherConverterToDoTheConversion() throws ConversionFailedException {
-            checking(new Expectations() {{
-                one(converter).valueOf("foo", Double.class); will(returnValue(1.23));
-            }});
-            delegator.valueOf("foo", Integer.class);
-        }
-    }
-
 }
