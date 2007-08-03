@@ -93,12 +93,6 @@ class MethodCall {
     }
 
     private Object convertToType(String srcValue, Class<?> destType) throws ConversionFailedException {
-        if (srcValue == null) {
-            if (destType.isPrimitive()) {
-                throw new InvalidSourceValueException(srcValue, destType);
-            }
-            return null;
-        }
         return provider.valueOf(srcValue, destType);
     }
 }

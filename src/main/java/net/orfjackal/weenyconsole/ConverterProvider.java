@@ -34,6 +34,12 @@ public class ConverterProvider implements ConversionService {
     }
 
     public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
+        if (sourceValue == null) {
+            if (targetType.isPrimitive()) {
+                throw new InvalidSourceValueException(sourceValue, targetType);
+            }
+            return null;
+        }
 
         // find a converter for the targetType
         try {

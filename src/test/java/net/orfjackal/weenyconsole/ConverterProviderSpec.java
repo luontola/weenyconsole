@@ -3,6 +3,7 @@ package net.orfjackal.weenyconsole;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import net.orfjackal.weenyconsole.converters.DelegatingConverter;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
@@ -98,6 +99,19 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             provider.removeConverterFor(String.class);
             specify(provider.converterFor(Integer.class), should.equal(integerConverter));
             specify(provider.converterFor(Double.class), should.equal(doubleConverter));
+        }
+
+        public void shouldConvertNullToNull() throws ConversionFailedException {
+            specify(provider.valueOf(null, Object.class), should.equal(null));
+        }
+
+        public void shouldNotConvertNullToAPrimitiveType() {
+            provider.addConverter(new DelegatingConverter(int.class, Integer.class));
+            specify(new Block() {
+                public void run() throws Throwable {
+                    provider.valueOf(null, int.class);
+                }
+            }, should.raise(InvalidSourceValueException.class));
         }
     }
 
