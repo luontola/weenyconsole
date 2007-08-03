@@ -80,11 +80,11 @@ class MethodCall {
         int count = origSrcValues.length - origDestTypes.length + 1;
 
         // temporary arrays for varargs, so that we can call convertToType
-        Class<?>[] destTypes = new Class<?>[count];
         String[] srcValues = new String[count];
+        Class<?>[] destTypes = new Class<?>[count];
         Object[] destValues = (Object[]) Array.newInstance(destType, count);
-        Arrays.fill(destTypes, destType);
         System.arraycopy(origSrcValues, origDestTypes.length - 1, srcValues, 0, srcValues.length);
+        Arrays.fill(destTypes, destType);
 
         convertToTypes(srcValues, destTypes, destValues, destTypes.length);
         return destValues;
