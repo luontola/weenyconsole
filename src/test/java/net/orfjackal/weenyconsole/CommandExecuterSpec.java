@@ -269,7 +269,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    private static class CustomObject {
+    public static class CustomObject {
         private String value;
 
         public CustomObject(String x) {
