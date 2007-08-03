@@ -302,23 +302,25 @@ public class CommandExecuterSpec extends Specification<Object> {
             }
         }
 
-        private class PointConstructorFactory implements ConstructorFactory {
-            public boolean canCreateInstancesOf(Class<?> type) {
-                return type.equals(Point.class);
+        private class PointConstructorFactory implements ConstructorFactory<Point> {
+
+            public Class<Point> typeOfCreatedInstances() {
+                return Point.class;
             }
 
-            public Object createNewInstanceFrom(String sourceValue) {
+            public Point createNewInstanceFrom(String sourceValue) {
                 String[] xy = sourceValue.split(",", 2);
                 return new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
             }
         }
 
-        private class DoublingIntegerConstructorFactory implements ConstructorFactory {
-            public boolean canCreateInstancesOf(Class<?> type) {
-                return type.equals(Integer.class);
+        private class DoublingIntegerConstructorFactory implements ConstructorFactory<Integer> {
+
+            public Class<Integer> typeOfCreatedInstances() {
+                return Integer.class;
             }
 
-            public Object createNewInstanceFrom(String sourceValue) {
+            public Integer createNewInstanceFrom(String sourceValue) {
                 return Integer.valueOf(sourceValue) * 2;
             }
         }
@@ -829,6 +831,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    // TODO: support a collection of ConstuctorFactories
     // TODO: support for array parameters: foo { item item }
     // TODO: support for multidimensional array parameters
     // TODO: should show a help message when using wrong number of parameters

@@ -17,9 +17,9 @@ class MethodCall {
 
     private String methodName;
     private String[] parameters;
-    private ConstructorFactory factory;
+    private ConstructorFactory<?> factory;
 
-    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConstructorFactory factory) {
+    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConstructorFactory<?> factory) {
         this.methodName = methodName;
         this.parameters = new String[srcLen];
         System.arraycopy(srcParameters, srcPos, this.parameters, 0, this.parameters.length);
@@ -122,7 +122,7 @@ class MethodCall {
             }
         }
         try {
-            if (factory != null && factory.canCreateInstancesOf(destType)) {
+            if (factory != null && destType.equals(factory.typeOfCreatedInstances())) {
                 return factory.createNewInstanceFrom(srcValue);
             }
             Constructor<?> constructor = destType.getConstructor(String.class);
