@@ -141,14 +141,14 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             return provider;
         }
 
-        public void shouldFirstlyUseAConverterOfTheTargetType() throws ConversionFailedException {
+        public void shouldFirstlyUseAConverterForTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(returnValue(1));
             }});
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
-        public void shouldSecondlyUseAConverterOfASubClassOfTheTargetType() throws ConversionFailedException {
+        public void shouldSecondlyUseAConverterForASubclassOfTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));
                 one(subConverter).valueOf("1", Number.class); will(returnValue(1));
@@ -156,7 +156,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
-        public void shouldThirdlyUseAConverterForASuperClassOfTheTargetType() throws ConversionFailedException {
+        public void shouldThirdlyUseAConverterForASuperclassOfTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));
                 one(subConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));
