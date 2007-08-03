@@ -1,13 +1,9 @@
 package net.orfjackal.weenyconsole;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Esko Luontola
@@ -97,61 +93,12 @@ class MethodCall {
     }
 
     private Object convertToType(String srcValue, Class<?> destType) throws ConversionFailedException {
-        // TODO: move the conversions of each type to their own classes, create a lookup table for finding the right converter
-        // TODO: add full support for custom converter, probably need a NestedHashMap util class for easy converter overriding
         if (srcValue == null) {
             if (destType.isPrimitive()) {
-                throw new ConversionFailedException(srcValue, destType);
+                throw new InvalidSourceValueException(srcValue, destType);
             }
             return null;
         }
-        if (destType.isPrimitive()) {
-            destType = primitiveToWrapperType(destType);
-        }
-        if (destType.equals(Boolean.class)
-                && !srcValue.equals(Boolean.toString(true))
-                && !srcValue.equals(Boolean.toString(false))) {
-            throw new ConversionFailedException(srcValue, destType);
-        }
-        if (destType.equals(Character.class) && srcValue.length() == 1) {
-            return srcValue.charAt(0);
-        }
-        if (destType.isEnum()) {
-            for (Enum<?> e : (Enum<?>[]) destType.getEnumConstants()) {
-                if (e.name().equals(srcValue)) {
-                    return e;
-                }
-            }
-        }
-        try {
-            Converter converter = provider.converterFor(destType);
-            if (converter != null) {
-                return converter.valueOf(srcValue, destType);
-            }
-            Constructor<?> constructor = destType.getConstructor(String.class);
-            return constructor.newInstance(srcValue);
-
-        } catch (Exception e) {
-            throw new ConversionFailedException(srcValue, destType, e);
-        }
-    }
-
-    private static Map<Class<?>, Class<?>> primitiveWrappers;
-
-    static {
-        HashMap<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
-        map.put(Boolean.TYPE, Boolean.class);
-        map.put(Character.TYPE, Character.class);
-        map.put(Byte.TYPE, Byte.class);
-        map.put(Short.TYPE, Short.class);
-        map.put(Integer.TYPE, Integer.class);
-        map.put(Long.TYPE, Long.class);
-        map.put(Float.TYPE, Float.class);
-        map.put(Double.TYPE, Double.class);
-        primitiveWrappers = Collections.unmodifiableMap(map);
-    }
-
-    private static Class<?> primitiveToWrapperType(Class<?> targetType) {
-        return primitiveWrappers.get(targetType);
+        return provider.valueOf(srcValue, destType);
     }
 }

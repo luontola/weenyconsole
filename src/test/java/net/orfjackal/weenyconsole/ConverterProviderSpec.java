@@ -1,10 +1,10 @@
 package net.orfjackal.weenyconsole;
 
-import jdave.Specification;
 import jdave.Block;
+import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.junit.runner.RunWith;
 import org.jmock.Expectations;
+import org.junit.runner.RunWith;
 
 /**
  * @author Esko Luontola
@@ -44,6 +44,18 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
                 one(converter).setProvider(provider);
             }});
             provider.addConverter(converter);
+        }
+
+        public void shouldNotAllowConvertersWhoseTargetTypeIsNull() {
+            final Converter converter = mock(Converter.class);
+            checking(new Expectations() {{
+                one(converter).supportedTargetType(); will(returnValue(null));
+            }});
+            specify(new Block() {
+                public void run() throws Throwable {
+                    provider.addConverter(converter);
+                }
+            }, should.raise(IllegalArgumentException.class));
         }
     }
 

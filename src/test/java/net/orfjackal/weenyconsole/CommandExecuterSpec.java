@@ -306,8 +306,12 @@ public class CommandExecuterSpec extends Specification<Object> {
 
             @SuppressWarnings({"unchecked"})
             public Object valueOf(String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
-                String[] xy = sourceValue.split(",", 2);
-                return new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
+                try {
+                    String[] xy = sourceValue.split(",", 2);
+                    return new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
+                } catch (Exception e) {
+                    throw new InvalidSourceValueException(sourceValue, targetType, e);
+                }
             }
 
             public Class<Point> supportedTargetType() {

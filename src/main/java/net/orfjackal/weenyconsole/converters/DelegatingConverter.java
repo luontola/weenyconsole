@@ -1,4 +1,9 @@
-package net.orfjackal.weenyconsole;
+package net.orfjackal.weenyconsole.converters;
+
+import net.orfjackal.weenyconsole.Converter;
+import net.orfjackal.weenyconsole.ConverterProvider;
+import net.orfjackal.weenyconsole.InvalidSourceValueException;
+import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
 
 /**
  * @author Esko Luontola

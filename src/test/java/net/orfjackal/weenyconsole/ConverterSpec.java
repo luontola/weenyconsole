@@ -3,6 +3,7 @@ package net.orfjackal.weenyconsole;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import net.orfjackal.weenyconsole.converters.StringConstructorConverter;
 import org.junit.runner.RunWith;
 
 import java.awt.*;

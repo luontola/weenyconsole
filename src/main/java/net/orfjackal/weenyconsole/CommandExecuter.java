@@ -1,5 +1,7 @@
 package net.orfjackal.weenyconsole;
 
+import net.orfjackal.weenyconsole.converters.*;
+
 import javax.lang.model.SourceVersion;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,7 +16,32 @@ import java.util.List;
 public class CommandExecuter {
 
     private CommandService target;
-    private ConverterProvider provider = new ConverterProvider();
+    private ConverterProvider provider = initProvider();
+
+    private static ConverterProvider initProvider() {
+        Converter[] converters = new Converter[]{
+                // default
+                new StringConstructorConverter(),
+                // primitive types
+                new DelegatingConverter(Boolean.TYPE, Boolean.class),
+                new DelegatingConverter(Character.TYPE, Character.class),
+                new DelegatingConverter(Byte.TYPE, Byte.class),
+                new DelegatingConverter(Short.TYPE, Short.class),
+                new DelegatingConverter(Integer.TYPE, Integer.class),
+                new DelegatingConverter(Long.TYPE, Long.class),
+                new DelegatingConverter(Float.TYPE, Float.class),
+                new DelegatingConverter(Double.TYPE, Double.class),
+                // special handling for basic types
+                new BooleanConverter(),
+                new CharacterConverter(),
+                new EnumConverter(),
+        };
+        ConverterProvider provider = new ConverterProvider();
+        for (Converter converter : converters) {
+            provider.addConverter(converter);
+        }
+        return provider;
+    }
 
     public CommandExecuter(CommandService target) {
         this.target = target;

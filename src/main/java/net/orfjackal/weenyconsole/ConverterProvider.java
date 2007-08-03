@@ -18,7 +18,11 @@ public class ConverterProvider implements Converter {
     }
 
     public void addConverter(Converter converter) {
-        converters.put(converter.supportedTargetType(), converter);
+        Class<?> targetType = converter.supportedTargetType();
+        if (targetType == null) {
+            throw new IllegalArgumentException("supportedTargetType() returned null: " + converter);
+        }
+        converters.put(targetType, converter);
         converter.setProvider(this);
     }
 
@@ -29,7 +33,6 @@ public class ConverterProvider implements Converter {
         }
     }
 
-    @SuppressWarnings({"LoopStatementThatDoesntLoop"})
     public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
 
         // find a converter for the targetType
