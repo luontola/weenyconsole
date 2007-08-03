@@ -9,7 +9,7 @@ import java.util.Set;
  * @author Esko Luontola
  * @since 3.8.2007
  */
-public class ConverterProvider implements Converter {
+public class ConverterProvider implements ConversionService {
 
     private Map<Class<?>, Converter> converters = new HashMap<Class<?>, Converter>();
 
@@ -69,13 +69,5 @@ public class ConverterProvider implements Converter {
 
     private Set<Class<?>> supportedTargetTypes() {
         return Collections.unmodifiableSet(converters.keySet());
-    }
-
-    public Class<?> supportedTargetType() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setProvider(ConverterProvider provider) {
-        throw new UnsupportedOperationException();
     }
 }
