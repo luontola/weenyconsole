@@ -21,7 +21,10 @@ public class ConverterProvider implements Converter {
     }
 
     public void removeConverterFor(Class<?> targetType) {
-        converters.remove(targetType);
+        Converter converter = converters.remove(targetType);
+        if (converter != null) {
+            converter.setProvider(null);
+        }
     }
 
     @SuppressWarnings({"LoopStatementThatDoesntLoop"})

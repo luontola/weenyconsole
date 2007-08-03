@@ -74,8 +74,18 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
         }
 
         public void afterRemovingAConverterTheProviderShouldNotContainIt() {
+            checking(new Expectations() {{
+                one(integerConverter).setProvider(null);
+            }});
             provider.removeConverterFor(Integer.class);
             specify(provider.converterFor(Integer.class), should.equal(null));
+            specify(provider.converterFor(Double.class), should.equal(doubleConverter));
+        }
+
+        public void removingAConverterWhichDoesNotExistShouldExitSilently() {
+            provider.removeConverterFor(String.class);
+            specify(provider.converterFor(Integer.class), should.equal(integerConverter));
+            specify(provider.converterFor(Double.class), should.equal(doubleConverter));
         }
     }
 
@@ -178,6 +188,6 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             }, should.raise(InvalidSourceValueException.class));
         }
 
-        
+
     }
 }
