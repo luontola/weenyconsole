@@ -1,8 +1,7 @@
 package net.orfjackal.weenyconsole;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Esko Luontola
@@ -13,7 +12,12 @@ public class ConverterProvider {
     private Map<Class<?>, Converter> converters = new HashMap<Class<?>, Converter>();
 
     public Converter findConverterFor(Class<?> targetType) {
-        return converters.get(targetType);
+        Converter converter = converters.get(targetType);
+        while (converter == null && targetType.getSuperclass() != null) {
+            targetType = targetType.getSuperclass();
+            converter = converters.get(targetType);
+        }
+        return converter;
     }
 
     public void add(Converter converter) {

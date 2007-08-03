@@ -71,4 +71,30 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.findConverterFor(Double.class), should.equal(doubleConverter));
         }
     }
+
+    public class ProviderWithNoExactlyMatchingConverter {
+
+        private ConverterProvider provider;
+        private Converter integerConverter;
+        private Converter defaultConverter;
+
+        public ConverterProvider create() {
+            provider = new ConverterProvider();
+            integerConverter = mock(Converter.class, "integerConverter");
+            defaultConverter = mock(Converter.class, "defaultConverter");
+            checking(new Expectations() {{
+                one(integerConverter).supportedTargetType(); will(returnValue(Integer.class));
+                one(integerConverter).setProvider(provider);
+                one(defaultConverter).supportedTargetType(); will(returnValue(Object.class));
+                one(defaultConverter).setProvider(provider);
+            }});
+            provider.add(integerConverter);
+            provider.add(defaultConverter);
+            return provider;
+        }
+
+        public void shouldTryAConverterForASuperClassOfTheTargetType() {
+            specify(provider.findConverterFor(Double.class), should.equal(defaultConverter));
+        }
+    }
 }
