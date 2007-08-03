@@ -13,6 +13,7 @@ import org.jmock.Expectations;
 public class ConverterProviderSpec extends Specification<ConverterProvider> {
 
     public class ProviderWithNoConverters {
+
         private ConverterProvider provider;
 
         public ConverterProvider create() {
