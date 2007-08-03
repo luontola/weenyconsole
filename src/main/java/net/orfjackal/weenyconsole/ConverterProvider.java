@@ -45,6 +45,7 @@ public class ConverterProvider implements ConversionService {
         try {
             Converter converter = converterFor(targetType);
             if (converter != null) {
+                // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
                 return converter.valueOf(sourceValue, targetType);
             }
         } catch (TargetTypeNotSupportedException e) {
@@ -56,6 +57,7 @@ public class ConverterProvider implements ConversionService {
             if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                 try {
                     Converter converter = converterFor(clazz);
+                    // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
                     return converter.valueOf(sourceValue, targetType);
                 } catch (TargetTypeNotSupportedException e) {
                     // FALLTHROUGH
