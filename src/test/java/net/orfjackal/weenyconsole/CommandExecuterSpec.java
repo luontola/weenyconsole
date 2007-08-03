@@ -636,7 +636,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(value, should.equal("the value"));
         }
 
-        public void shouldReturnNullIfAVoidMethod() {
+        public void shouldReturnNullFromVoidMethods() {
             Object value = exec.execute("void method");
             specify(value, should.equal(null));
         }
