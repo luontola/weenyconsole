@@ -6,8 +6,8 @@ import java.lang.reflect.Constructor;
  * @author Esko Luontola
  * @since 3.8.2007
  */
-public class DefaultConverter implements Converter {
-    
+public class StringConstructorConverter implements Converter {
+
     public <T> T valueOf(String sourceValue, Class<T> targetType) throws ConversionFailedException {
         try {
             Constructor<T> constructor = targetType.getConstructor(String.class);
@@ -18,6 +18,9 @@ public class DefaultConverter implements Converter {
     }
 
     public Class<?> supportedTargetType() {
-        return null;
+        return Object.class;
+    }
+
+    public void setProvider(ConverterProvider provider) {
     }
 }

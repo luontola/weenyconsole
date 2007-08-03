@@ -18,5 +18,6 @@ public class ConverterProvider {
 
     public void add(Converter converter) {
         converters.put(converter.supportedTargetType(), converter);
+        converter.setProvider(this);
     }
 }

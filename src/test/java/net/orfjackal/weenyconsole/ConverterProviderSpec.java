@@ -29,9 +29,19 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             final Converter converter = mock(Converter.class);
             checking(new Expectations() {{
                 one(converter).supportedTargetType(); will(returnValue(Integer.class));
+                one(converter).setProvider(provider);
             }});
             provider.add(converter);
             specify(provider.findConverterFor(Integer.class), should.equal(converter));
+        }
+        
+        public void shouldGiveToTheConverterAccessToTheProvider() {
+            final Converter converter = mock(Converter.class);
+            checking(new Expectations() {{
+                one(converter).supportedTargetType(); will(returnValue(Integer.class));
+                one(converter).setProvider(provider);
+            }});
+            provider.add(converter);
         }
     }
 
@@ -42,13 +52,15 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
         private Converter doubleConverter;
 
         public ConverterProvider create() {
+            provider = new ConverterProvider();
             integerConverter = mock(Converter.class, "integerConverter");
             doubleConverter = mock(Converter.class, "doubleConverter");
             checking(new Expectations() {{
                 one(integerConverter).supportedTargetType(); will(returnValue(Integer.class));
+                one(integerConverter).setProvider(provider);
                 one(doubleConverter).supportedTargetType(); will(returnValue(Double.class));
+                one(doubleConverter).setProvider(provider);
             }});
-            provider = new ConverterProvider();
             provider.add(integerConverter);
             provider.add(doubleConverter);
             return provider;
