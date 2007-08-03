@@ -1,6 +1,7 @@
 package net.orfjackal.weenyconsole;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Esko Luontola
@@ -8,12 +9,18 @@ import java.lang.reflect.Constructor;
  */
 public class StringConstructorConverter implements Converter {
 
-    public <T> T valueOf(String sourceValue, Class<T> targetType) throws ConversionFailedException {
+    public <T> T valueOf(String sourceValue, Class<T> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
         try {
             Constructor<T> constructor = targetType.getConstructor(String.class);
             return constructor.newInstance(sourceValue);
-        } catch (Exception e) {
-            throw new ConversionFailedException(sourceValue, targetType, e);
+        } catch (IllegalAccessException e) {
+            throw new TargetTypeNotSupportedException(sourceValue, targetType, e);
+        } catch (NoSuchMethodException e) {
+            throw new TargetTypeNotSupportedException(sourceValue, targetType, e);
+        } catch (InstantiationException e) {
+            throw new TargetTypeNotSupportedException(sourceValue, targetType, e);
+        } catch (InvocationTargetException e) {
+            throw new InvalidSourceValueException(sourceValue, targetType, e);
         }
     }
 

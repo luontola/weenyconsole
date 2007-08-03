@@ -16,10 +16,10 @@ public class DelegatingConverter implements Converter {
     }
 
     @SuppressWarnings({"unchecked"})
-    public <T> T valueOf(String sourceValue, Class<T> targetType) throws ConversionFailedException {
-        Converter realConverter = provider.findConverterFor(delegateTo);
+    public <T> T valueOf(String sourceValue, Class<T> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
+        Converter realConverter = provider.converterFor(delegateTo);
         if (realConverter == null) {
-            throw new ConversionFailedException(sourceValue, targetType);
+            throw new TargetTypeNotSupportedException(sourceValue, targetType);
         }
         return (T) realConverter.valueOf(sourceValue, delegateTo);
     }
