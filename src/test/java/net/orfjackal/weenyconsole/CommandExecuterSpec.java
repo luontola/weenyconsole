@@ -524,6 +524,8 @@ public class CommandExecuterSpec extends Specification<Object> {
         private class TargetMock implements CommandService {
             private Integer overloadedInt;
             private Boolean overloadedBoolean;
+            private String ambiguousValue1;
+            private Class<?> ambiguousValue2;
 
             public void overloaded(int x) {
                 overloadedInt = x;
@@ -531,6 +533,16 @@ public class CommandExecuterSpec extends Specification<Object> {
 
             public void overloaded(boolean x) {
                 overloadedBoolean = x;
+            }
+
+            public void ambiguous(String s, Double x) {
+                ambiguousValue1 = s;
+                ambiguousValue2 = x.getClass();
+            }
+
+            public void ambiguous(String s, Integer x) {
+                ambiguousValue1 = s;
+                ambiguousValue2 = x.getClass();
             }
         }
 
@@ -553,6 +565,19 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("overloaded true");
             specify(target.overloadedInt, should.equal(null));
             specify(target.overloadedBoolean, should.equal(true));
+        }
+
+        public void shouldNotAllowAmbiguousParameters() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("ambiguous foo 1");
+                }
+            }, should.raise(AmbiguousMethodsException.class, "" +
+                    "   command failed: ambiguous foo 1\n" +
+                    "ambiguous methods: ambiguous(java.lang.String,java.lang.Double)\n" +
+                    "                   ambiguous(java.lang.String,java.lang.Integer)"));
+            specify(target.ambiguousValue1, should.equal(null));
+            specify(target.ambiguousValue2, should.equal(null));
         }
     }
 
@@ -795,9 +820,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    /* TODO: support for priorizing overloaded methods according to parameter types
-       (double > long > integer > character > string etc.)
-       and move overloaded method tests to their own context */
     // TODO: support for array parameters: foo { item item }
     // TODO: support for multidimensional array parameters
     // TODO: should show a help message when using wrong number of parameters

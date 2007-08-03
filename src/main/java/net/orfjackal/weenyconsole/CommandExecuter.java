@@ -33,26 +33,66 @@ public class CommandExecuter {
             if (commandWords.length == 0) {
                 return null;
             }
+            List<Match> matches = new ArrayList<Match>();
             for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
                 for (Method method : possibleMethods()) {
                     if (methodCall.matches(method)) {
-                        return methodCall.invoke(method, target);
+                        matches.add(new Match(methodCall, method));
                     }
                 }
             }
-            throw new CommandNotFoundException(command);
+            Match match = exactMatch(matches, command);
+            return match.invoke(target);
 
-        } catch (CommandExecutionException e) {     // invalid command or command not found
+        } catch (CommandExecutionException e) {
             throw e;
-        } catch (InvocationTargetException e) {     // target method threw an exception
+        } catch (InvocationTargetException e) {
             throw new CommandTargetException(command, e.getTargetException(), e);
-        } catch (IllegalAccessException e) {        // should never happen - caused by restricted Java VM or a bug
-            e.printStackTrace();
-            throw new CommandExecutionException(command, "internal error: " + e.getMessage(), e);
-        } catch (RuntimeException e) {              // should never happen - caused by a bug in this program
-            e.printStackTrace();
-            throw new CommandExecutionException(command, "internal error: " + e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace(); // should never happen - caused by restricted Java VM or a bug
+            throw new CommandExecutionException(command, e);
+        } catch (RuntimeException e) {
+            e.printStackTrace(); // should never happen - caused by a bug in this program
+            throw new CommandExecutionException(command, e);
         }
+    }
+
+    private static class Match {
+        public final MethodCall methodCall;
+        public final Method method;
+
+        public Match(MethodCall methodCall, Method method) {
+            this.methodCall = methodCall;
+            this.method = method;
+        }
+
+        public Object invoke(CommandService target) throws IllegalAccessException, InvocationTargetException {
+            return methodCall.invoke(method, target);
+        }
+    }
+
+    private static Match exactMatch(List<Match> matches, String command) {
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+        if (matches.size() == 0) {
+            throw new CommandNotFoundException(command);
+        }
+        int lengthOfFirst = matches.get(0).method.getName().length();
+        int lengthOfSecond = matches.get(1).method.getName().length();
+        if (lengthOfFirst > lengthOfSecond) {
+            // higher priority for longer names
+            return matches.get(0);
+        }
+        throw new AmbiguousMethodsException(command, methodsFrom(matches));
+    }
+
+    private static List<Method> methodsFrom(List<Match> matches) {
+        List<Method> methods = new ArrayList<Method>();
+        for (Match match : matches) {
+            methods.add(match.method);
+        }
+        return methods;
     }
 
     private Method[] possibleMethods() {
