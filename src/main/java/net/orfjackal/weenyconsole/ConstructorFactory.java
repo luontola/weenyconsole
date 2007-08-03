@@ -9,6 +9,7 @@ package net.orfjackal.weenyconsole;
  */
 public interface ConstructorFactory<T> {
 
+    // TODO: try to read the type from the type parameter, remove this method if possible
     Class<T> typeOfCreatedInstances();
 
     /**

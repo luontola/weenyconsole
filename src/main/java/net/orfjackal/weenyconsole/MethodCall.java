@@ -97,6 +97,8 @@ class MethodCall {
     }
 
     private Object convertToType(String srcValue, Class<?> destType) throws ConversionFailedException {
+        // TODO: move the conversions of each type to their own classes, create a lookup table for finding the right converter
+        // TODO: add full support for custom converter, probably need a NestedHashMap util class for easy converter overriding
         if (srcValue == null) {
             if (destType.isPrimitive()) {
                 throw new ConversionFailedException(srcValue, destType);

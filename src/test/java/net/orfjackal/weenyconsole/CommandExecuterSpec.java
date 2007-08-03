@@ -829,6 +829,8 @@ public class CommandExecuterSpec extends Specification<Object> {
             }, should.raise(CommandNotFoundException.class));
             specify(target.inheritedUnallowedMethodExecuted, should.equal(0));
         }
+
+        // TODO: should allow calling inherited not marked methods if they are overrided in a sub class
     }
 
     // TODO: support a collection of ConstuctorFactories
