@@ -1,6 +1,8 @@
 package net.orfjackal.weenyconsole;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -14,6 +16,7 @@ public class AmbiguousMethodsException extends CommandExecutionException {
     }
 
     private static String messageFor(String command, List<Method> methods) {
+        Collections.sort(methods, new MethodComparator());
         StringBuilder sb = new StringBuilder();
         sb.append("   command failed: ").append(command);
         sb.append("\nambiguous methods: ").append(toString(methods.get(0)));
@@ -38,5 +41,23 @@ public class AmbiguousMethodsException extends CommandExecutionException {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    private static class MethodComparator implements Comparator<Method> {
+        public int compare(Method m1, Method m2) {
+            int cmp = m1.getName().compareTo(m2.getName());
+            if (cmp != 0) {
+                return cmp;
+            }
+            Class<?>[] types1 = m1.getParameterTypes();
+            Class<?>[] types2 = m2.getParameterTypes();
+            for (int i = 0; i < types1.length && i < types2.length; i++) {
+                cmp = types1[i].getName().compareTo(types2[i].getName());
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+            return types1.length - types2.length; // shortest first
+        }
     }
 }

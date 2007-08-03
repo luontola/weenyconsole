@@ -524,7 +524,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         private class TargetMock implements CommandService {
             private Integer overloadedInt;
             private Boolean overloadedBoolean;
-            private String ambiguousValue1;
+            private Class<?> ambiguousValue1;
             private Class<?> ambiguousValue2;
 
             public void overloaded(int x) {
@@ -535,14 +535,21 @@ public class CommandExecuterSpec extends Specification<Object> {
                 overloadedBoolean = x;
             }
 
-            public void ambiguous(String s, Double x) {
-                ambiguousValue1 = s;
-                ambiguousValue2 = x.getClass();
+            public void ambiguous(Integer x) {
+                ambiguousValue1 = x.getClass();
             }
 
-            public void ambiguous(String s, Integer x) {
-                ambiguousValue1 = s;
-                ambiguousValue2 = x.getClass();
+            public void ambiguous(Double x) {
+                ambiguousValue1 = x.getClass();
+            }
+
+            public void ambiguous(Float x1, String... x2) {
+                ambiguousValue1 = x1.getClass();
+                ambiguousValue2 = x2.getClass();
+            }
+
+            public void ambiguous(Float x) {
+                ambiguousValue1 = x.getClass();
             }
         }
 
@@ -570,12 +577,14 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotAllowAmbiguousParameters() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("ambiguous foo 1");
+                    exec.execute("ambiguous 1");
                 }
             }, should.raise(AmbiguousMethodsException.class, "" +
-                    "   command failed: ambiguous foo 1\n" +
-                    "ambiguous methods: ambiguous(java.lang.String,java.lang.Double)\n" +
-                    "                   ambiguous(java.lang.String,java.lang.Integer)"));
+                    "   command failed: ambiguous 1\n" +
+                    "ambiguous methods: ambiguous(java.lang.Double)\n" + // alphabetical order, shortest first
+                    "                   ambiguous(java.lang.Float)\n" +
+                    "                   ambiguous(java.lang.Float,[Ljava.lang.String;)\n" +
+                    "                   ambiguous(java.lang.Integer)"));
             specify(target.ambiguousValue1, should.equal(null));
             specify(target.ambiguousValue2, should.equal(null));
         }
