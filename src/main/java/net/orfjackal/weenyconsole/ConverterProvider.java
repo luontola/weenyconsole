@@ -67,7 +67,7 @@ public class ConverterProvider implements ConversionService {
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
             Converter converter = converterFor(clazz);
             if (converter != null) {
-                // TODO: verify that the returned value is really an instance of targetType
+                // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
                 return converter.valueOf(sourceValue, targetType);
             }
         }

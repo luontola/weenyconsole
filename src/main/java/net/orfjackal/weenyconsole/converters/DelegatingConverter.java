@@ -17,10 +17,10 @@ public class DelegatingConverter implements Converter {
 
     public DelegatingConverter(Class<?> delegateFrom, Class<?> delegateTo) {
         if (delegateFrom.isAssignableFrom(delegateTo)) {
-            throw new IllegalArgumentException(delegateTo.getName() + " is a subtype of " + delegateFrom.getName());
+            throw new IllegalArgumentException(delegateTo.getName() + " is a subclass of " + delegateFrom.getName());
         }
         if (delegateTo.isAssignableFrom(delegateFrom)) {
-            throw new IllegalArgumentException(delegateFrom.getName() + " is a subtype of " + delegateTo.getName());
+            throw new IllegalArgumentException(delegateFrom.getName() + " is a subclass of " + delegateTo.getName());
         }
         this.delegateFrom = delegateFrom;
         this.delegateTo = delegateTo;

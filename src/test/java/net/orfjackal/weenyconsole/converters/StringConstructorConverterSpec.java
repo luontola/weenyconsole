@@ -1,9 +1,10 @@
-package net.orfjackal.weenyconsole;
+package net.orfjackal.weenyconsole.converters;
 
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import net.orfjackal.weenyconsole.converters.StringConstructorConverter;
+import net.orfjackal.weenyconsole.ConversionFailedException;
+import net.orfjackal.weenyconsole.Converter;
 import org.junit.runner.RunWith;
 
 import java.awt.*;
@@ -13,9 +14,9 @@ import java.awt.*;
  * @since 3.8.2007
  */
 @RunWith(JDaveRunner.class)
-public class ConverterSpec extends Specification<Converter> {
+public class StringConstructorConverterSpec extends Specification<Converter> {
 
-    public class DefaultConversion {
+    public class AStringConstructorConverter {
 
         private StringConstructorConverter converter;
 
@@ -24,7 +25,7 @@ public class ConverterSpec extends Specification<Converter> {
             return converter;
         }
 
-        public void shouldUseTheStringConstructorOfTheClass() throws ConversionFailedException {
+        public void shouldConvertUsingTheStringConstructorOfTheClass() throws ConversionFailedException {
             specify(converter.valueOf("1", Integer.class), should.equal(1));
         }
 

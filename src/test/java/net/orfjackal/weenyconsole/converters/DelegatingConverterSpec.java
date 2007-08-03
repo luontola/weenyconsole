@@ -51,20 +51,20 @@ public class DelegatingConverterSpec extends Specification<DelegatingConverter> 
             }, should.raise(IllegalArgumentException.class));
         }
 
-        public void shouldNotAllowAnInfiniteLoopWhenSourceIsASubclassOfTheTargetTarget() {
+        public void shouldNotAllowAnInfiniteLoopWhenSourceIsASubclassOfTheTargetType() {
             specify(new Block() {
                 public void run() throws Throwable {
                     new DelegatingConverter(Integer.class, Number.class);
                 }
-            }, should.raise(IllegalArgumentException.class, "java.lang.Integer is a subtype of java.lang.Number"));
+            }, should.raise(IllegalArgumentException.class, "java.lang.Integer is a subclass of java.lang.Number"));
         }
 
-        public void shouldNotAllowAnInfiniteLoopWhenSourceIsASuperclassOfTheTargetTarget() {
+        public void shouldNotAllowAnInfiniteLoopWhenSourceIsASuperclassOfTheTargetType() {
             specify(new Block() {
                 public void run() throws Throwable {
                     new DelegatingConverter(Number.class, Integer.class);
                 }
-            }, should.raise(IllegalArgumentException.class, "java.lang.Integer is a subtype of java.lang.Number"));
+            }, should.raise(IllegalArgumentException.class, "java.lang.Integer is a subclass of java.lang.Number"));
         }
     }
 }
