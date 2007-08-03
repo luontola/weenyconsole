@@ -27,17 +27,16 @@ public class CommandExecuter {
     /**
      * @throws CommandExecutionException
      */
-    public void execute(String command) {
+    public Object execute(String command) {
         try {
             String[] commandWords = separateWords(command);
             if (commandWords.length == 0) {
-                return;
+                return null;
             }
             for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
                 for (Method method : possibleMethods()) {
                     if (methodCall.matches(method)) {
-                        methodCall.invoke(method, target);
-                        return;
+                        return methodCall.invoke(method, target);
                     }
                 }
             }

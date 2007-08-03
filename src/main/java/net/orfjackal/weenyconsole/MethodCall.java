@@ -31,8 +31,8 @@ class MethodCall {
                 && parametersCanBeAssignedTo(method);
     }
 
-    public void invoke(Method method, Object methodOwner) throws IllegalAccessException, InvocationTargetException {
-        method.invoke(methodOwner, parametersForMethod(method, parameters));
+    public Object invoke(Method method, Object methodOwner) throws IllegalAccessException, InvocationTargetException {
+        return method.invoke(methodOwner, parametersForMethod(method, parameters));
     }
 
     private boolean methodHasTheRightName(Method method) {

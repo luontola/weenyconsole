@@ -608,6 +608,40 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
+    public class WhenTheTargetMethodReturnsAValue {
+
+        private class TargetMock implements CommandService {
+            private String stringToReturn;
+
+            public String returnsString() {
+                return stringToReturn;
+            }
+
+            public void voidMethod() {
+            }
+        }
+
+        private TargetMock target;
+        private CommandExecuter exec;
+
+        public Object create() {
+            target = new TargetMock();
+            exec = new CommandExecuter(target);
+            return null;
+        }
+
+        public void shouldReturnTheValueToTheUser() {
+            target.stringToReturn = "the value";
+            Object value = exec.execute("returns string");
+            specify(value, should.equal("the value"));
+        }
+
+        public void shouldReturnNullIfAVoidMethod() {
+            Object value = exec.execute("void method");
+            specify(value, should.equal(null));
+        }
+    }
+
     public class WhenTheTargetMethodThrowsAnException {
 
         private class TargetMock implements CommandService {
@@ -761,7 +795,6 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
     }
 
-    // TODO: support for method return values
     /* TODO: support for priorizing overloaded methods according to parameter types
        (double > long > integer > character > string etc.)
        and move overloaded method tests to their own context */
