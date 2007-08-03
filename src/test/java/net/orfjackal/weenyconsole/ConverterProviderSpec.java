@@ -188,6 +188,40 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             }, should.raise(InvalidSourceValueException.class));
         }
 
+        public void shouldSkipFirstStageIfNoConverterWasFound() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).setProvider(null);
+                one(subConverter).valueOf("1", Number.class); will(returnValue(1));
+            }});
+            provider.removeConverterFor(Number.class);
+            specify(provider.valueOf("1", Number.class), should.equal(1));
+        }
 
+        public void shouldSkipAlsoSecondStageIfNoConverterWasFound() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).setProvider(null);
+                one(subConverter).setProvider(null);
+                one(superConverter).valueOf("1", Number.class); will(returnValue(1));
+            }});
+            provider.removeConverterFor(Number.class);
+            provider.removeConverterFor(Integer.class);
+            specify(provider.valueOf("1", Number.class), should.equal(1));
+        }
+
+        public void shouldSkipAlsoThirdStageAndFailIfNoConverterWasFound() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).setProvider(null);
+                one(subConverter).setProvider(null);
+                one(superConverter).setProvider(null);
+            }});
+            provider.removeConverterFor(Number.class);
+            provider.removeConverterFor(Integer.class);
+            provider.removeConverterFor(Object.class);
+            specify(new Block() {
+                public void run() throws Throwable {
+                    provider.valueOf("1", Number.class);
+                }
+            }, should.raise(TargetTypeNotSupportedException.class));
+        }
     }
 }

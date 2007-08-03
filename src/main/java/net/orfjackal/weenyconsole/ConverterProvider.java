@@ -1,7 +1,9 @@
 package net.orfjackal.weenyconsole;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Esko Luontola
@@ -33,13 +35,15 @@ public class ConverterProvider implements Converter {
         // find a converter for the targetType
         try {
             Converter converter = converterFor(targetType);
-            return converter.valueOf(sourceValue, targetType);
+            if (converter != null) {
+                return converter.valueOf(sourceValue, targetType);
+            }
         } catch (TargetTypeNotSupportedException e) {
             // FALLTHROUGH
         }
 
         // find a converter for a subclass of targetType
-        for (Class<?> clazz : converters.keySet()) {
+        for (Class<?> clazz : supportedTargetTypes()) {
             if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                 try {
                     Converter converter = converterFor(clazz);
@@ -53,15 +57,22 @@ public class ConverterProvider implements Converter {
         // find a converter for a superclass of targetType
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
             Converter converter = converterFor(clazz);
-            return converter.valueOf(sourceValue, targetType);
+            if (converter != null) {
+                return converter.valueOf(sourceValue, targetType);
+            }
         }
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
     }
 
+    private Set<Class<?>> supportedTargetTypes() {
+        return Collections.unmodifiableSet(converters.keySet());
+    }
+
     public Class<?> supportedTargetType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public void setProvider(ConverterProvider provider) {
+        throw new UnsupportedOperationException();
     }
 }
