@@ -6,7 +6,7 @@ package net.orfjackal.weenyconsole;
  */
 public interface Converter {
 
-    <T> T valueOf(String sourceValue, Class<T> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException;
+    Object valueOf(String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException;
 
     Class<?> supportedTargetType();
 

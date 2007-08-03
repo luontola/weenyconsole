@@ -302,26 +302,33 @@ public class CommandExecuterSpec extends Specification<Object> {
             }
         }
 
-        private class PointConstructorFactory implements ConstructorFactory<Point> {
+        private class PointConverter implements Converter {
 
-            public Class<Point> typeOfCreatedInstances() {
-                return Point.class;
-            }
-
-            public Point createNewInstanceFrom(String sourceValue) {
+            @SuppressWarnings({"unchecked"})
+            public Object valueOf(String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
                 String[] xy = sourceValue.split(",", 2);
                 return new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
             }
+
+            public Class<Point> supportedTargetType() {
+                return Point.class;
+            }
+
+            public void setProvider(ConverterProvider provider) {
+            }
         }
 
-        private class DoublingIntegerConstructorFactory implements ConstructorFactory<Integer> {
+        private class DoublingIntegerConverter implements Converter {
 
-            public Class<Integer> typeOfCreatedInstances() {
+            public Object valueOf(String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
+                return (Integer.valueOf(sourceValue) * 2);
+            }
+
+            public Class<?> supportedTargetType() {
                 return Integer.class;
             }
 
-            public Integer createNewInstanceFrom(String sourceValue) {
-                return Integer.valueOf(sourceValue) * 2;
+            public void setProvider(ConverterProvider provider) {
             }
         }
 
@@ -340,13 +347,13 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldSupportOtherObjectsAsAParameterWhenAFactoryIsProvided() {
-            exec.setConstructorFactory(new PointConstructorFactory());
+            exec.addConverter(new PointConverter());
             exec.execute("factory 1,2");
             specify(target.factoryParam, should.equal(new Point(1, 2)));
         }
 
         public void theFactoryShouldTakePriorityOverTheConstructor() {
-            exec.setConstructorFactory(new DoublingIntegerConstructorFactory());
+            exec.addConverter(new DoublingIntegerConverter());
             exec.execute("integer 3");
             specify(target.integerParam, should.equal(6));
         }
@@ -366,7 +373,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldNotCallMethodsToWhichTheParameterCanNotBeConvertedUsingAFactory() {
-            exec.setConstructorFactory(new PointConstructorFactory());
+            exec.addConverter(new PointConverter());
             specify(new Block() {
                 public void run() throws Throwable {
                     exec.execute("factory 1");

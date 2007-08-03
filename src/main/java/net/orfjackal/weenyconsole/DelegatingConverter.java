@@ -6,22 +6,24 @@ package net.orfjackal.weenyconsole;
  */
 public class DelegatingConverter implements Converter {
 
-    private Class<Integer> delegateFrom;
-    private Class<Double> delegateTo;
+    private Class<?> delegateFrom;
+    private Class<?> delegateTo;
     private ConverterProvider provider;
 
-    public DelegatingConverter(Class<Integer> delegateFrom, Class<Double> delegateTo) {
+    public DelegatingConverter(Class<?> delegateFrom, Class<?> delegateTo) {
+        if (delegateFrom.isAssignableFrom(delegateTo)) {
+            throw new IllegalArgumentException(delegateTo.getName() + " is a subtype of " + delegateFrom.getName());
+        }
+        if (delegateTo.isAssignableFrom(delegateFrom)) {
+            throw new IllegalArgumentException(delegateFrom.getName() + " is a subtype of " + delegateTo.getName());
+        }
         this.delegateFrom = delegateFrom;
         this.delegateTo = delegateTo;
     }
 
     @SuppressWarnings({"unchecked"})
-    public <T> T valueOf(String sourceValue, Class<T> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
-        Converter realConverter = provider.converterFor(delegateTo);
-        if (realConverter == null) {
-            throw new TargetTypeNotSupportedException(sourceValue, targetType);
-        }
-        return (T) realConverter.valueOf(sourceValue, delegateTo);
+    public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
+        return provider.valueOf(sourceValue, delegateTo);
     }
 
     public Class<?> supportedTargetType() {

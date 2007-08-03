@@ -17,13 +17,13 @@ class MethodCall {
 
     private String methodName;
     private String[] parameters;
-    private ConstructorFactory<?> factory;
+    private ConverterProvider provider;
 
-    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConstructorFactory<?> factory) {
+    public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConverterProvider provider) {
         this.methodName = methodName;
         this.parameters = new String[srcLen];
         System.arraycopy(srcParameters, srcPos, this.parameters, 0, this.parameters.length);
-        this.factory = factory;
+        this.provider = provider;
     }
 
     public boolean matches(Method method) {
@@ -124,8 +124,9 @@ class MethodCall {
             }
         }
         try {
-            if (factory != null && destType.equals(factory.typeOfCreatedInstances())) {
-                return factory.createNewInstanceFrom(srcValue);
+            Converter converter = provider.converterFor(destType);
+            if (converter != null) {
+                return converter.valueOf(srcValue, destType);
             }
             Constructor<?> constructor = destType.getConstructor(String.class);
             return constructor.newInstance(srcValue);

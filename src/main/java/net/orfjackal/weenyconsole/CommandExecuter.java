@@ -14,14 +14,14 @@ import java.util.List;
 public class CommandExecuter {
 
     private CommandService target;
-    private ConstructorFactory factory;
+    private ConverterProvider provider = new ConverterProvider();
 
     public CommandExecuter(CommandService target) {
         this.target = target;
     }
 
-    public void setConstructorFactory(ConstructorFactory factory) {
-        this.factory = factory;
+    public void addConverter(Converter converter) {
+        provider.addConverter(converter);
     }
 
     /**
@@ -120,7 +120,7 @@ public class CommandExecuter {
         for (int i = words.length; i > 0; i--) {
             String methodName = combineToMethodName(words, i);
             if (methodName != null) {
-                possibilities.add(new MethodCall(methodName, words, i, words.length - i, factory));
+                possibilities.add(new MethodCall(methodName, words, i, words.length - i, provider));
             }
         }
         return possibilities;

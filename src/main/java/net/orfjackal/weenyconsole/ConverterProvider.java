@@ -30,7 +30,7 @@ public class ConverterProvider implements Converter {
     }
 
     @SuppressWarnings({"LoopStatementThatDoesntLoop"})
-    public <T> T valueOf(final String sourceValue, final Class<T> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
+    public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
 
         // find a converter for the targetType
         try {
