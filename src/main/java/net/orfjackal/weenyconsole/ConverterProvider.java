@@ -15,9 +15,13 @@ public class ConverterProvider implements Converter {
         return converters.get(targetType);
     }
 
-    public void add(Converter converter) {
+    public void addConverter(Converter converter) {
         converters.put(converter.supportedTargetType(), converter);
         converter.setProvider(this);
+    }
+
+    public void removeConverterFor(Class<?> targetType) {
+        converters.remove(targetType);
     }
 
     @SuppressWarnings({"LoopStatementThatDoesntLoop"})

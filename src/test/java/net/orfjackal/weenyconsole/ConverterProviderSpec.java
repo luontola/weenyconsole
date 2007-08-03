@@ -33,7 +33,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
                 one(converter).supportedTargetType(); will(returnValue(Integer.class));
                 one(converter).setProvider(provider);
             }});
-            provider.add(converter);
+            provider.addConverter(converter);
             specify(provider.converterFor(Integer.class), should.equal(converter));
         }
 
@@ -43,7 +43,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
                 one(converter).supportedTargetType(); will(returnValue(Integer.class));
                 one(converter).setProvider(provider);
             }});
-            provider.add(converter);
+            provider.addConverter(converter);
         }
     }
 
@@ -63,14 +63,19 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
                 one(doubleConverter).supportedTargetType(); will(returnValue(Double.class));
                 one(doubleConverter).setProvider(provider);
             }});
-            provider.add(integerConverter);
-            provider.add(doubleConverter);
+            provider.addConverter(integerConverter);
+            provider.addConverter(doubleConverter);
             return provider;
         }
 
         public void shouldProvideAConverterForTheRequestedTargetType() {
             specify(provider.converterFor(Integer.class), should.equal(integerConverter));
             specify(provider.converterFor(Double.class), should.equal(doubleConverter));
+        }
+
+        public void afterRemovingAConverterTheProviderShouldNotContainIt() {
+            provider.removeConverterFor(Integer.class);
+            specify(provider.converterFor(Integer.class), should.equal(null));
         }
     }
 
@@ -94,9 +99,9 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
                 one(subConverter).supportedTargetType(); will(returnValue(Integer.class));
                 one(subConverter).setProvider(provider);
             }});
-            provider.add(subConverter);
-            provider.add(exactConverter);
-            provider.add(superConverter);
+            provider.addConverter(subConverter);
+            provider.addConverter(exactConverter);
+            provider.addConverter(superConverter);
             return provider;
         }
 
@@ -173,5 +178,6 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             }, should.raise(InvalidSourceValueException.class));
         }
 
+        
     }
 }

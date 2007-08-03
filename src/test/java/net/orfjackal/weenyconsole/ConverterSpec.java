@@ -58,8 +58,8 @@ public class ConverterSpec extends Specification<Converter> {
                 one(converter).supportedTargetType(); will(returnValue(Double.class));
                 one(converter).setProvider(provider);
             }});
-            provider.add(delegator);
-            provider.add(converter);
+            provider.addConverter(delegator);
+            provider.addConverter(converter);
             return delegator;
         }
 
