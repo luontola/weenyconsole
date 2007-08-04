@@ -201,6 +201,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             private Float primFloat;
             private Double primDouble;
             private Integer nullCheckValue;
+            private Character characterCheckValue;
 
             public void integer(Integer x) {
                 integerValue = x;
@@ -224,6 +225,10 @@ public class CommandExecuterSpec extends Specification<Object> {
 
             public void nullCheck(int x) {
                 nullCheckValue = x;
+            }
+
+            public void characterCheck(Character x) {
+                characterCheckValue = x;
             }
         }
 
@@ -266,6 +271,15 @@ public class CommandExecuterSpec extends Specification<Object> {
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.nullCheckValue, should.equal(123));
+        }
+
+        public void shouldNotAllowConvertingManyLettersToACharacterParameter() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("characterCheck ab");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.characterCheckValue, should.equal(null));
         }
     }
 
@@ -412,6 +426,15 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldSupportEnumsAsAParameter() {
             exec.execute("enumMethod BAR");
             specify(target.enumMethodParam, should.equal(MyEnum.BAR));
+        }
+
+        public void shouldNotAllowInvalidEnumNames() {
+            specify(new Block() {
+                public void run() throws Throwable {
+                    exec.execute("enumMethod bar");
+                }
+            }, should.raise(CommandNotFoundException.class));
+            specify(target.enumMethodParam, should.equal(null));
         }
     }
 
