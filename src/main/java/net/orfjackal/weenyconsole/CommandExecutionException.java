@@ -6,7 +6,7 @@ package net.orfjackal.weenyconsole;
  */
 public class CommandExecutionException extends RuntimeException {
 
-    private String command;
+    private final String command;
 
     public CommandExecutionException(String command) {
         super(messageFor(command, null));

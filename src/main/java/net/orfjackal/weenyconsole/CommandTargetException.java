@@ -6,7 +6,7 @@ package net.orfjackal.weenyconsole;
  */
 public class CommandTargetException extends CommandExecutionException {
 
-    private Throwable targetException;
+    private final Throwable targetException;
 
     public CommandTargetException(String command, Throwable targetException, Throwable cause) {
         super(command, messageFor(targetException), cause);

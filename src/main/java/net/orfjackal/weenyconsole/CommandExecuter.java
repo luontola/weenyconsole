@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class CommandExecuter {
 
-    private CommandService target;
-    private ConverterProvider provider = initProvider();
+    private final CommandService target;
+    private final ConverterProvider provider = initProvider();
 
     private static ConverterProvider initProvider() {
         Converter[] converters = new Converter[]{

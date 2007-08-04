@@ -11,9 +11,9 @@ import java.util.Arrays;
  */
 class MethodCall {
 
-    private String methodName;
-    private String[] parameters;
-    private ConverterProvider provider;
+    private final String methodName;
+    private final String[] parameters;
+    private final ConverterProvider provider;
 
     public MethodCall(String methodName, String[] srcParameters, int srcPos, int srcLen, ConverterProvider provider) {
         this.methodName = methodName;

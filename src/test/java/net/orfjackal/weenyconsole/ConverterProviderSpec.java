@@ -234,7 +234,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
-        public void shouldSkipAlsoThirdStageAndFailIfNoConverterWasFound() throws ConversionFailedException {
+        public void shouldSkipAlsoThirdStageAndFailIfNoConverterWasFound() {
             checking(new Expectations() {{
                 one(exactConverter).setProvider(null);
                 one(subConverter).setProvider(null);

@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class ConverterProvider implements ConversionService {
 
-    private Map<Class<?>, Converter> converters = new HashMap<Class<?>, Converter>();
+    private final Map<Class<?>, Converter> converters = new HashMap<Class<?>, Converter>();
 
     public Converter converterFor(Class<?> targetType) {
         return converters.get(targetType);
