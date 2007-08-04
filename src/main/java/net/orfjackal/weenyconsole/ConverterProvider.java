@@ -45,8 +45,10 @@ public class ConverterProvider implements ConversionService {
         try {
             Converter converter = converterFor(targetType);
             if (converter != null) {
-                // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
-                return converter.valueOf(sourceValue, targetType);
+                Object o = converter.valueOf(sourceValue, targetType);
+                if (targetType.isAssignableFrom(o.getClass()) || canBeUnboxed(targetType, o.getClass())) {
+                    return o;
+                }
             }
         } catch (TargetTypeNotSupportedException e) {
             // FALLTHROUGH
@@ -57,8 +59,10 @@ public class ConverterProvider implements ConversionService {
             if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                 try {
                     Converter converter = converterFor(clazz);
-                    // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
-                    return converter.valueOf(sourceValue, targetType);
+                    Object o = converter.valueOf(sourceValue, targetType);
+                    if (targetType.isAssignableFrom(o.getClass())) {
+                        return o;
+                    }
                 } catch (TargetTypeNotSupportedException e) {
                     // FALLTHROUGH
                 }
@@ -69,11 +73,29 @@ public class ConverterProvider implements ConversionService {
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
             Converter converter = converterFor(clazz);
             if (converter != null) {
-                // TODO: verify that the returned value is really an instance of targetType (java.lang.Class.asSubclass)
-                return converter.valueOf(sourceValue, targetType);
+                Object o = converter.valueOf(sourceValue, targetType);
+                if (targetType.isAssignableFrom(o.getClass())) {
+                    return o;
+                }
             }
         }
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
+    }
+
+    private boolean canBeUnboxed(Class<?> targetType, Class<?> sourceType) {
+        try {
+            if (targetType.isPrimitive() && !sourceType.isPrimitive()) {
+                Class<?> primitiveType = (Class<?>) sourceType.getField("TYPE").get(null);
+                return primitiveType.equals(targetType);
+            }
+        } catch (RuntimeException e) {
+            // FALLTHROUGH
+        } catch (NoSuchFieldException e) {
+            // FALLTHROUGH
+        } catch (IllegalAccessException e) {
+            // FALLTHROUGH
+        }
+        return false;
     }
 
     private Set<Class<?>> supportedTargetTypes() {

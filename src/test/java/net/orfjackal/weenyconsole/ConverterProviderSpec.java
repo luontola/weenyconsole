@@ -7,6 +7,8 @@ import net.orfjackal.weenyconsole.converters.DelegatingConverter;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
+import java.math.BigInteger;
+
 /**
  * @author Esko Luontola
  * @since 3.8.2007
@@ -243,6 +245,36 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             provider.removeConverterFor(Number.class);
             provider.removeConverterFor(Integer.class);
             provider.removeConverterFor(Object.class);
+            specify(new Block() {
+                public void run() throws Throwable {
+                    provider.valueOf("1", Number.class);
+                }
+            }, should.raise(TargetTypeNotSupportedException.class));
+        }
+
+        public void shouldVerifyOnFirstStageThatTheConvertedValueIsAnInstanceOfTheTargetClass() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+                one(subConverter).valueOf("1", Number.class); will(returnValue(new BigInteger("1")));
+            }});
+            specify(provider.valueOf("1", Number.class), should.equal(new BigInteger("1")));
+        }
+
+        public void shouldVerifyOnSecondStageThatTheConvertedValueIsAnInstanceOfTheTargetClass() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+                one(subConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+                one(superConverter).valueOf("1", Number.class); will(returnValue(new BigInteger("1")));
+            }});
+            specify(provider.valueOf("1", Number.class), should.equal(new BigInteger("1")));
+        }
+
+        public void shouldVerifyOnThirdStageThatTheConvertedValueIsAnInstanceOfTheTargetClass() throws ConversionFailedException {
+            checking(new Expectations() {{
+                one(exactConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+                one(subConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+                one(superConverter).valueOf("1", Number.class); will(returnValue(new Object()));
+            }});
             specify(new Block() {
                 public void run() throws Throwable {
                     provider.valueOf("1", Number.class);
