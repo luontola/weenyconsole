@@ -41,16 +41,14 @@ public class ConverterProvider implements ConversionService {
             return null;
         }
 
-        // use a converter for the targetType:
-        // best match
+        // use the converter of targetType
         try {
             return convertUsing(converterFor(targetType), sourceValue, targetType);
         } catch (TargetTypeNotSupportedException e) {
             // FALLTHROUGH
         }
 
-        // use a converter for a subclass of targetType:
-        // all subclasses are instances of targetType
+        // use the converter of a subclass of targetType
         for (Class<?> clazz : supportedTargetTypes()) {
             if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                 try {
@@ -61,8 +59,7 @@ public class ConverterProvider implements ConversionService {
             }
         }
 
-        // use a converter for a superclass of targetType:
-        // a generic converter might be able to handle also its subclasses
+        // use the converter of a superclass of targetType
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
             try {
                 return convertUsing(converterFor(clazz), sourceValue, targetType);

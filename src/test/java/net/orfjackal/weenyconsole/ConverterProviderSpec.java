@@ -3,7 +3,9 @@ package net.orfjackal.weenyconsole;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import net.orfjackal.weenyconsole.converters.BooleanConverter;
 import net.orfjackal.weenyconsole.converters.DelegatingConverter;
+import net.orfjackal.weenyconsole.converters.StringConstructorConverter;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
@@ -143,6 +145,13 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             return provider;
         }
 
+        /**
+         * A dedicated converter for the target type, if present, is always the best
+         * candidate for conversions, so it should have the highest priority. This will
+         * also make it possible to override the default conversion for a specific type,
+         * if the default {@link StringConstructorConverter} would not produce the
+         * desired result (such as in the case of {@link BooleanConverter}).
+         */
         public void shouldFirstlyUseAConverterForTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(returnValue(1));
@@ -150,6 +159,11 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
+        /**
+         * By definition all subclasses of the target type are instances of the target type,
+         * so using one of the subclasses' converter should be almost as good as a converter
+         * for the exact target type.
+         */
         public void shouldSecondlyUseAConverterForASubclassOfTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));
@@ -158,6 +172,11 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
+        /**
+         * A generic converter, such as {@link StringConstructorConverter} <em>might</em>
+         * be able to handle also the conversions of its subclasses, so it is a good guess
+         * to try using the converter of a superclass of the target type.
+         */
         public void shouldThirdlyUseAConverterForASuperclassOfTheTargetType() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));
@@ -167,6 +186,10 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
+        /**
+         * When no suitable converter could be found, the only option is to report
+         * it to the user.
+         */
         public void shouldFourthlyFail() throws ConversionFailedException {
             checking(new Expectations() {{
                 one(exactConverter).valueOf("1", Number.class); will(throwException(new TargetTypeNotSupportedException("1", Number.class)));

@@ -639,10 +639,14 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("boolean case not_boolean");
+                    exec.execute("boolean case 0");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.booleanCaseValue, should.equal(null));
+            exec.execute("boolean case true");
+            specify(target.booleanCaseValue, should.equal(true));
+            exec.execute("boolean case false");
+            specify(target.booleanCaseValue, should.equal(false));
         }
 
         public void shouldNotMistakeNullValuesToBePartOfTheMethodName() {
