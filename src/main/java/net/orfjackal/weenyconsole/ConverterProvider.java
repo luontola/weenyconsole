@@ -41,42 +41,43 @@ public class ConverterProvider implements ConversionService {
             return null;
         }
 
-        // find a converter for the targetType
+        // use a converter for the targetType:
+        // best match
         try {
-            Converter converter = converterFor(targetType);
-            if (converter != null) {
-                Object o = converter.valueOf(sourceValue, targetType);
-                if (targetType.isAssignableFrom(o.getClass()) || canBeUnboxed(targetType, o.getClass())) {
-                    return o;
-                }
-            }
+            return convertUsing(converterFor(targetType), sourceValue, targetType);
         } catch (TargetTypeNotSupportedException e) {
             // FALLTHROUGH
         }
 
-        // find a converter for a subclass of targetType
+        // use a converter for a subclass of targetType:
+        // all subclasses are instances of targetType
         for (Class<?> clazz : supportedTargetTypes()) {
             if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                 try {
-                    Converter converter = converterFor(clazz);
-                    Object o = converter.valueOf(sourceValue, targetType);
-                    if (targetType.isAssignableFrom(o.getClass())) {
-                        return o;
-                    }
+                    return convertUsing(converterFor(clazz), sourceValue, targetType);
                 } catch (TargetTypeNotSupportedException e) {
                     // FALLTHROUGH
                 }
             }
         }
 
-        // find a converter for a superclass of targetType
+        // use a converter for a superclass of targetType:
+        // a generic converter might be able to handle also its subclasses
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
-            Converter converter = converterFor(clazz);
-            if (converter != null) {
-                Object o = converter.valueOf(sourceValue, targetType);
-                if (targetType.isAssignableFrom(o.getClass())) {
-                    return o;
-                }
+            try {
+                return convertUsing(converterFor(clazz), sourceValue, targetType);
+            } catch (TargetTypeNotSupportedException e) {
+                // FALLTHROUGH
+            }
+        }
+        throw new TargetTypeNotSupportedException(sourceValue, targetType);
+    }
+
+    private Object convertUsing(Converter converter, String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
+        if (converter != null) {
+            Object o = converter.valueOf(sourceValue, targetType);
+            if (targetType.isAssignableFrom(o.getClass()) || canBeUnboxed(targetType, o.getClass())) {
+                return o;
             }
         }
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
