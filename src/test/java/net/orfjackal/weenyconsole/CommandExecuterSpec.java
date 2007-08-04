@@ -262,7 +262,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             target.nullCheckValue = 123;
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("null check \\0");
+                    exec.execute("nullCheck \\0");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.nullCheckValue, should.equal(123));
@@ -304,7 +304,6 @@ public class CommandExecuterSpec extends Specification<Object> {
 
         private class PointConverter implements Converter {
 
-            @SuppressWarnings({"unchecked"})
             public Object valueOf(String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
                 try {
                     String[] xy = sourceValue.split(",", 2);
@@ -370,7 +369,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotCallMethodsToWhichTheParameterCanNotBeConvertedUsingAConstructor() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("constructor error not_int");
+                    exec.execute("constructorError not_int");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.constructorErrorValue, should.equal(null));
@@ -411,7 +410,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldSupportEnumsAsAParameter() {
-            exec.execute("enum method BAR");
+            exec.execute("enumMethod BAR");
             specify(target.enumMethodParam, should.equal(MyEnum.BAR));
         }
     }
@@ -448,7 +447,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldSupportMixingNormalAndVarargParameters() {
-            exec.execute("mixed vararg zero one two three");
+            exec.execute("mixedVararg zero one two three");
             specify(target.normalParam, should.equal("zero"));
             specify(target.varargParams, should.containInOrder("one", "two", "three"));
         }
@@ -462,7 +461,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotAllowTooFewParameters() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("mixed vararg");
+                    exec.execute("mixedVararg");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.normalParam, should.equal(null));
@@ -639,13 +638,13 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldAllowCreatingABooleanOnlyFromTrueOrFalse() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("boolean case 0");
+                    exec.execute("booleanCase 0");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.booleanCaseValue, should.equal(null));
-            exec.execute("boolean case true");
+            exec.execute("booleanCase true");
             specify(target.booleanCaseValue, should.equal(true));
-            exec.execute("boolean case false");
+            exec.execute("booleanCase false");
             specify(target.booleanCaseValue, should.equal(false));
         }
 
@@ -683,12 +682,12 @@ public class CommandExecuterSpec extends Specification<Object> {
 
         public void shouldReturnTheValueToTheUser() {
             target.stringToReturn = "the value";
-            Object value = exec.execute("returns string");
+            Object value = exec.execute("returnsString");
             specify(value, should.equal("the value"));
         }
 
         public void shouldReturnNullFromVoidMethods() {
-            Object value = exec.execute("void method");
+            Object value = exec.execute("voidMethod");
             specify(value, should.equal(null));
         }
     }
@@ -712,7 +711,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void itShouldBeWrappedAndRethrownToTheUser() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("exception thrower");
+                    exec.execute("exceptionThrower");
                 }
             }, should.raise(CommandTargetException.class, "exception was thrown: " +
                     "java.lang.IllegalStateException: some exception"));
@@ -760,14 +759,14 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldAllowCallingOnlyPublicInstanceMethods() {
-            exec.execute("public method");
+            exec.execute("publicMethod");
             specify(target.publicMethodExecuted, should.equal(1));
         }
 
         public void shouldNotAllowCallingProtectedMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("protected method");
+                    exec.execute("protectedMethod");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.protectedMethodExecuted, should.equal(0));
@@ -776,7 +775,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotAllowCallingPackagePrivateMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("package method");
+                    exec.execute("packageMethod");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.packageMethodExecuted, should.equal(0));
@@ -785,7 +784,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotAllowCallingPrivateMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("private method");
+                    exec.execute("privateMethod");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.privateMethodExecuted, should.equal(0));
@@ -794,7 +793,7 @@ public class CommandExecuterSpec extends Specification<Object> {
         public void shouldNotAllowCallingStaticMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("static method");
+                    exec.execute("staticMethod");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(VisibilityRulesTargetMock.staticMethodExecuted, should.equal(0));
@@ -812,13 +811,23 @@ public class CommandExecuterSpec extends Specification<Object> {
             public void inheritedAllowedMethod() {
                 inheritedAllowedMethodExecuted++;
             }
+
+            @Override
+            public void inheritedOverriddenMethod() {
+                super.inheritedOverriddenMethod();
+            }
         }
 
         private class SuperParentMock {
             public int inheritedUnallowedMethodExecuted;
+            public int inheritedOverriddenMethodExecuted;
 
             public void inheritedUnallowedMethod() {
                 inheritedUnallowedMethodExecuted++;
+            }
+
+            public void inheritedOverriddenMethod() {
+                inheritedOverriddenMethodExecuted++;
             }
         }
 
@@ -832,23 +841,25 @@ public class CommandExecuterSpec extends Specification<Object> {
         }
 
         public void shouldAllowCallingMethodsInheritedFromClassesWhichImplementTheMarkerInterface() {
-            exec.execute("inherited allowed method");
+            exec.execute("inheritedAllowedMethod");
             specify(target.inheritedAllowedMethodExecuted, should.equal(1));
         }
 
         public void shouldNotAllowCallingAnyOtherInheritedMethods() {
             specify(new Block() {
                 public void run() throws Throwable {
-                    exec.execute("inherited unallowed method");
+                    exec.execute("inheritedUnallowedMethod");
                 }
             }, should.raise(CommandNotFoundException.class));
             specify(target.inheritedUnallowedMethodExecuted, should.equal(0));
         }
 
-        // TODO: should allow calling inherited not marked methods if they are overrided in a sub class
+        public void shouldAllowCallingInheritedNotMarkedMethodsIfTheyAreOverridedInASubClass() {
+            exec.execute("inheritedOverriddenMethod");
+            specify(target.inheritedOverriddenMethodExecuted, should.equal(1));
+        }
     }
 
-    // TODO: support a collection of ConstuctorFactories
     // TODO: support for array parameters: foo { item item }
     // TODO: support for multidimensional array parameters
     // TODO: should show a help message when using wrong number of parameters
