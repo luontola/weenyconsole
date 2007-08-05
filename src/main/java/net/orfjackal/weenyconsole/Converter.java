@@ -8,5 +8,5 @@ public interface Converter extends ConversionService {
 
     Class<?> supportedTargetType();
 
-    void setProvider(ConverterProvider provider);
+    void setProvider(ConversionService provider);
 }

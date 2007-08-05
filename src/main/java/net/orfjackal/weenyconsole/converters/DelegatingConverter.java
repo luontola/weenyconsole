@@ -1,7 +1,7 @@
 package net.orfjackal.weenyconsole.converters;
 
+import net.orfjackal.weenyconsole.ConversionService;
 import net.orfjackal.weenyconsole.Converter;
-import net.orfjackal.weenyconsole.ConverterProvider;
 import net.orfjackal.weenyconsole.InvalidSourceValueException;
 import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
 
@@ -13,7 +13,7 @@ public class DelegatingConverter implements Converter {
 
     private Class<?> delegateFrom;
     private Class<?> delegateTo;
-    private ConverterProvider provider;
+    private ConversionService provider;
 
     public DelegatingConverter(Class<?> delegateFrom, Class<?> delegateTo) {
         if (delegateFrom.isAssignableFrom(delegateTo)) {
@@ -35,7 +35,7 @@ public class DelegatingConverter implements Converter {
         return delegateFrom;
     }
 
-    public void setProvider(ConverterProvider provider) {
+    public void setProvider(ConversionService provider) {
         this.provider = provider;
     }
 }

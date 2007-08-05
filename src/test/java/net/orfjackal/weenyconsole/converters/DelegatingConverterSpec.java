@@ -27,7 +27,7 @@ public class DelegatingConverterSpec extends Specification<DelegatingConverter> 
             realConverter = mock(Converter.class, "realConverter");
             checking(new Expectations(){{
                 one(realConverter).supportedTargetType(); will(returnValue(Integer.class));
-                one(realConverter).setProvider(provider);
+                one(realConverter).setProvider(provider); // TODO: use a mock for provider
             }});
             provider.addConverter(realConverter);
             return null;

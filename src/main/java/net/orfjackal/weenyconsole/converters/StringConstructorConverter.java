@@ -1,7 +1,7 @@
 package net.orfjackal.weenyconsole.converters;
 
+import net.orfjackal.weenyconsole.ConversionService;
 import net.orfjackal.weenyconsole.Converter;
-import net.orfjackal.weenyconsole.ConverterProvider;
 import net.orfjackal.weenyconsole.InvalidSourceValueException;
 import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
 
@@ -33,6 +33,6 @@ public class StringConstructorConverter implements Converter {
         return Object.class;
     }
 
-    public void setProvider(ConverterProvider provider) {
+    public void setProvider(ConversionService provider) {
     }
 }

@@ -331,7 +331,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                 return Point.class;
             }
 
-            public void setProvider(ConverterProvider provider) {
+            public void setProvider(ConversionService provider) {
             }
         }
 
@@ -345,7 +345,7 @@ public class CommandExecuterSpec extends Specification<Object> {
                 return Integer.class;
             }
 
-            public void setProvider(ConverterProvider provider) {
+            public void setProvider(ConversionService provider) {
             }
         }
 
