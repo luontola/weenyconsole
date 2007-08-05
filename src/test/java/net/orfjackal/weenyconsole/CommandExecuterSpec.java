@@ -47,7 +47,7 @@ public class CommandExecuterSpec extends Specification<Object> {
             specify(target.fooExecuted, should.equal(0));
         }
 
-        public void anEmptyCommandShouldExitSilently() {
+        public void shouldExitSilentlyOnAnEmptyCommand() {
             exec.execute("");               // trivial case of an empty string
             exec.execute("  \n");           // whitespace should also be regarded as an empty command
             specify(target.fooExecuted, should.equal(0));

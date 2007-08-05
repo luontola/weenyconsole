@@ -248,7 +248,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
-        public void shouldSkipAlsoSecondStageIfNoConverterWasFound() throws ConversionFailedException {
+        public void shouldSkipSecondStageIfNoConverterWasFound() throws ConversionFailedException {
             checking(new Expectations() {{
                 one (exactConverter).setProvider(null);
                 one (subConverter  ).setProvider(null);
@@ -259,7 +259,7 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(provider.valueOf("1", Number.class), should.equal(1));
         }
 
-        public void shouldSkipAlsoThirdStageAndFailIfNoConverterWasFound() {
+        public void shouldSkipThirdStageAndFailIfNoConverterWasFound() {
             checking(new Expectations() {{
                 one (exactConverter).setProvider(null);
                 one (subConverter  ).setProvider(null);
