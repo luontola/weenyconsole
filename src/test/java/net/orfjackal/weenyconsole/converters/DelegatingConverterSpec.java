@@ -3,8 +3,7 @@ package net.orfjackal.weenyconsole.converters;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import net.orfjackal.weenyconsole.Converter;
-import net.orfjackal.weenyconsole.ConverterProvider;
+import net.orfjackal.weenyconsole.ConversionService;
 import net.orfjackal.weenyconsole.InvalidSourceValueException;
 import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
 import org.jmock.Expectations;
@@ -19,25 +18,19 @@ public class DelegatingConverterSpec extends Specification<DelegatingConverter> 
 
     public class ADelegatingConverter {
 
-        private Converter realConverter;
-        private ConverterProvider provider;
+        private ConversionService provider;
+        private DelegatingConverter delegator;
 
         public DelegatingConverter create() {
-            provider = new ConverterProvider();
-            realConverter = mock(Converter.class, "realConverter");
-            checking(new Expectations(){{
-                one(realConverter).supportedTargetType(); will(returnValue(Integer.class));
-                one(realConverter).setProvider(provider); // TODO: use a mock for provider
-            }});
-            provider.addConverter(realConverter);
+            provider = mock(ConversionService.class, "provider");
+            delegator = new DelegatingConverter(int.class, Integer.class);
+            delegator.setProvider(provider);
             return null;
         }
 
         public void shouldDelegateConversionsOfOneTypeToTheConverterOfAnotherType() throws TargetTypeNotSupportedException, InvalidSourceValueException {
-            DelegatingConverter delegator = new DelegatingConverter(int.class, Integer.class);
-            provider.addConverter(delegator);
             checking(new Expectations(){{
-                one(realConverter).valueOf("1", Integer.class); will(returnValue(1));
+                one(provider).valueOf("1", Integer.class); will(returnValue(1));
             }});
             specify(delegator.supportedTargetType(), should.equal(int.class));
             specify(delegator.valueOf("1", int.class), should.equal(1));
