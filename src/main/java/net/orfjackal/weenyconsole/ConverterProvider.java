@@ -92,7 +92,7 @@ public class ConverterProvider implements ConversionService {
                 return primitiveType.equals(toPrimitiveType);
             }
         } catch (RuntimeException e) {
-            // FALLTHROUGH - can be caused by a buggy converter when 'fromWrapperType' is not a wrapper, but it has field 'TYPE'
+            // FALLTHROUGH - happens when 'fromWrapperType' is not a wrapper, but it has field 'TYPE'
         } catch (NoSuchFieldException e) {
             // FALLTHROUGH
         } catch (IllegalAccessException e) {
