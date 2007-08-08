@@ -82,7 +82,7 @@ class MethodCall {
         Class<?>[] destTypes = new Class<?>[varargsCount];
         Arrays.fill(destTypes, destType);
 
-        convertToTypes(srcValues, destTypes, destValues, destTypes.length);
+        convertToTypes(srcValues, destTypes, destValues, destValues.length);
         return destValues;
     }
 
