@@ -72,13 +72,14 @@ class MethodCall {
     }
 
     private Object[] convertVarargs(String[] origSrcValues, Class<?>[] origDestTypes) throws ConversionFailedException {
-        Class<?> destType = origDestTypes[origDestTypes.length - 1].getComponentType();
-        int varargsLength = origSrcValues.length - origDestTypes.length + 1;
+        int varargsIndex = origDestTypes.length - 1;
+        int varargsCount = origSrcValues.length - varargsIndex;
+        Class<?> destType = origDestTypes[varargsIndex].getComponentType();
 
         // temporary arrays for varargs, so that we can call convertToType
-        String[] srcValues = Arrays.copyOfRange(origSrcValues, origDestTypes.length - 1, origSrcValues.length);
-        Object[] destValues = (Object[]) Array.newInstance(destType, varargsLength);
-        Class<?>[] destTypes = new Class<?>[varargsLength];
+        String[] srcValues = Arrays.copyOfRange(origSrcValues, varargsIndex, origSrcValues.length);
+        Object[] destValues = (Object[]) Array.newInstance(destType, varargsCount);
+        Class<?>[] destTypes = new Class<?>[varargsCount];
         Arrays.fill(destTypes, destType);
 
         convertToTypes(srcValues, destTypes, destValues, destTypes.length);
