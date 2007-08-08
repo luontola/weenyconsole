@@ -88,6 +88,7 @@ public class ConverterProvider implements ConversionService {
         try {
             if (!fromWrapperType.isPrimitive() && toPrimitiveType.isPrimitive()) {
                 // all wrapper types have a static field TYPE which contains the Class of the primitive type
+                // TODO: would it be better to just have a map of all wrapper types and the corresponding primitive types?
                 Class<?> primitiveType = (Class<?>) fromWrapperType.getField("TYPE").get(null);
                 return primitiveType.equals(toPrimitiveType);
             }
