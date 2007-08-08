@@ -9,7 +9,6 @@ import net.orfjackal.weenyconsole.converters.StringConstructorConverter;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
-import java.lang.annotation.ElementType;
 import java.math.BigInteger;
 
 /**
@@ -302,36 +301,6 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             specify(new Block() {
                 public void run() throws Throwable {
                     provider.valueOf("1", Number.class);
-                }
-            }, should.raise(TargetTypeNotSupportedException.class));
-        }
-    }
-
-    public class Bugfixes {
-        private ConverterProvider provider;
-
-        public ConverterProvider create() {
-            provider = new ConverterProvider();
-            return null;
-        }
-
-        public void shouldNotCrashToABuggyPrimitiveConverter() throws TargetTypeNotSupportedException, InvalidSourceValueException {
-            Converter buggyConverter = new Converter() {
-                public Object valueOf(String sourceValue, Class<?> targetType) {
-                    return ElementType.TYPE; // this class contains static field TYPE, as do the primitive wrappers
-                }
-
-                public Class<?> supportedTargetType() {
-                    return int.class;
-                }
-
-                public void setProvider(ConversionService provider) {
-                }
-            };
-            provider.addConverter(buggyConverter);
-            specify(new Block() {
-                public void run() throws Throwable {
-                    provider.valueOf("1", int.class);
                 }
             }, should.raise(TargetTypeNotSupportedException.class));
         }

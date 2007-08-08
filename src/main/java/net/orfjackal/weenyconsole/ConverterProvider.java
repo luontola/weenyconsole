@@ -84,21 +84,23 @@ public class ConverterProvider implements ConversionService {
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
     }
 
+    private static final Map<Class<?>, Class<?>> wrapperTypes;
+
+    static {
+        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+        map.put(Boolean.TYPE, Boolean.class);
+        map.put(Character.TYPE, Character.class);
+        map.put(Byte.TYPE, Byte.class);
+        map.put(Short.TYPE, Short.class);
+        map.put(Integer.TYPE, Integer.class);
+        map.put(Long.TYPE, Long.class);
+        map.put(Float.TYPE, Float.class);
+        map.put(Double.TYPE, Double.class);
+        wrapperTypes = Collections.unmodifiableMap(map);
+    }
+
     private static boolean canBeUnboxed(Class<?> fromWrapperType, Class<?> toPrimitiveType) {
-        try {
-            if (!fromWrapperType.isPrimitive() && toPrimitiveType.isPrimitive()) {
-                // all wrapper types have a static field TYPE which contains the Class of the primitive type
-                // TODO: would it be better to just have a map of all wrapper types and the corresponding primitive types?
-                Class<?> primitiveType = (Class<?>) fromWrapperType.getField("TYPE").get(null);
-                return primitiveType.equals(toPrimitiveType);
-            }
-        } catch (RuntimeException e) {
-            // FALLTHROUGH - happens when 'fromWrapperType' is not a wrapper, but it has field 'TYPE'
-        } catch (NoSuchFieldException e) {
-            // FALLTHROUGH
-        } catch (IllegalAccessException e) {
-            // FALLTHROUGH
-        }
-        return false;
+        Class<?> wrapperType = wrapperTypes.get(toPrimitiveType);
+        return (wrapperType != null && wrapperType.equals(fromWrapperType));
     }
 }
