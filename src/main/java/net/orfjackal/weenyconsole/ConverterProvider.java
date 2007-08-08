@@ -33,6 +33,10 @@ public class ConverterProvider implements ConversionService {
         }
     }
 
+    private Set<Class<?>> supportedTargetTypes() {
+        return Collections.unmodifiableSet(converters.keySet());
+    }
+
     public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
         if (sourceValue == null) {
             if (targetType.isPrimitive()) {
@@ -70,33 +74,30 @@ public class ConverterProvider implements ConversionService {
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
     }
 
-    private Object convertUsing(Converter converter, String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
+    private static Object convertUsing(Converter converter, String sourceValue, Class<?> targetType) throws InvalidSourceValueException, TargetTypeNotSupportedException {
         if (converter != null) {
             Object o = converter.valueOf(sourceValue, targetType);
-            if (targetType.isAssignableFrom(o.getClass()) || canBeUnboxed(targetType, o.getClass())) {
+            if (targetType.isAssignableFrom(o.getClass()) || canBeUnboxed(o.getClass(), targetType)) {
                 return o;
             }
         }
         throw new TargetTypeNotSupportedException(sourceValue, targetType);
     }
 
-    private boolean canBeUnboxed(Class<?> targetType, Class<?> sourceType) {
+    private static boolean canBeUnboxed(Class<?> fromWrapperType, Class<?> toPrimitiveType) {
         try {
-            if (targetType.isPrimitive() && !sourceType.isPrimitive()) {
-                Class<?> primitiveType = (Class<?>) sourceType.getField("TYPE").get(null);
-                return primitiveType.equals(targetType);
+            if (!fromWrapperType.isPrimitive() && toPrimitiveType.isPrimitive()) {
+                // all wrapper types have a static field TYPE which contains the Class of the primitive type
+                Class<?> primitiveType = (Class<?>) fromWrapperType.getField("TYPE").get(null);
+                return primitiveType.equals(toPrimitiveType);
             }
         } catch (RuntimeException e) {
-            // FALLTHROUGH
+            // FALLTHROUGH - can be caused by a buggy converter when 'fromWrapperType' is not a wrapper, but it has field 'TYPE'
         } catch (NoSuchFieldException e) {
             // FALLTHROUGH
         } catch (IllegalAccessException e) {
             // FALLTHROUGH
         }
         return false;
-    }
-
-    private Set<Class<?>> supportedTargetTypes() {
-        return Collections.unmodifiableSet(converters.keySet());
     }
 }
