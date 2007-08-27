@@ -15,7 +15,7 @@ public class Test {
 //        javaClass = parser.parse();
 
         Repository.setRepository(new ClassLoaderRepository(Test.class.getClassLoader()));
-        javaClass = Repository.lookupClass("Test");
+        javaClass = Repository.lookupClass(Test.class.getName());
 
         System.out.println("javaClass = " + javaClass);
 
@@ -26,6 +26,9 @@ public class Test {
             System.out.println("LineNumberTable = " + Arrays.toString(table.getLineNumberTable()));
             System.out.println("Code = " + method.getCode());
         }
+    }
+
+    public void empty() {
     }
 
     // TODO: try to use com.sun.org.apache.bcel.internal.classfile.ClassParser to get the line numbers of the code in Method classes
