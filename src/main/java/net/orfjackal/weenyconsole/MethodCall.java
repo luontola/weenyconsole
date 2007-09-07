@@ -40,6 +40,7 @@ class MethodCall {
     }
 
     private Object[] parametersForMethod(Method method, String[] srcValues) {
+        // TODO: refactor this method to be cleaner, for example when adding array support
         try {
             Class<?>[] destTypes = method.getParameterTypes();
             Object[] destValues = new Object[destTypes.length];
