@@ -57,8 +57,7 @@ public class ConverterProvider implements ConversionService {
         return convertUsingConverterForSuperclassOf(targetType, sourceValue);
     }
 
-    private static boolean convertsToNull(Class<?> targetType, String sourceValue)
-            throws InvalidSourceValueException {
+    private static boolean convertsToNull(Class<?> targetType, String sourceValue) throws InvalidSourceValueException {
         if (sourceValue == null) {
             if (!targetType.isPrimitive()) {
                 return true;
