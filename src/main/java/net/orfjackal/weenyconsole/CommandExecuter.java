@@ -60,9 +60,7 @@ public class CommandExecuter {
             if (command.trim().length() == 0) {
                 return null;
             }
-            List<Match> matches = findAllMatchesFor(command);
-            Match match = findAnExactMatchFrom(matches, command);
-            return match.invoke(target);
+            return matchFor(command).invoke(target);
 
         } catch (CommandExecutionException e) {
             throw e;
@@ -75,6 +73,11 @@ public class CommandExecuter {
             e.printStackTrace(); // should never happen - caused by a bug in this program
             throw new CommandExecutionException(command, e);
         }
+    }
+
+    private Match matchFor(String command) {
+        List<Match> matches = findAllMatchesFor(command);
+        return findAnExactMatchFrom(matches, command);
     }
 
     private List<Match> findAllMatchesFor(String command) {
