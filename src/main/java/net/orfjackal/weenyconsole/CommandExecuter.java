@@ -88,6 +88,18 @@ public class CommandExecuter {
         return matches;
     }
 
+    private List<MethodCall> possibleMethodCalls(String command) {
+        List<MethodCall> results = new ArrayList<MethodCall>();
+        String[] words = separateWords(command);
+        for (int i = words.length; i > 0; i--) {
+            String methodName = combineToMethodName(words, i);
+            if (methodName != null) {
+                results.add(new MethodCall(methodName, words, i, words.length - i, provider));
+            }
+        }
+        return results;
+    }
+
     private List<Match> matchesWithPossibleMethods(MethodCall methodCall) {
         List<Match> matches = new ArrayList<Match>();
         for (Method method : possibleMethods()) {
@@ -98,19 +110,15 @@ public class CommandExecuter {
         return matches;
     }
 
-    private static class Match {
-
-        public final MethodCall methodCall;
-        public final Method method;
-
-        public Match(MethodCall methodCall, Method method) {
-            this.methodCall = methodCall;
-            this.method = method;
+    private Method[] possibleMethods() {
+        List<Method> results = new ArrayList<Method>();
+        for (Method method : target.getClass().getMethods()) {
+            if (implementsTheMarkerInterface(method)
+                    && isPublicInstanceMethod(method)) {
+                results.add(method);
+            }
         }
-
-        public Object invoke(CommandService target) throws IllegalAccessException, InvocationTargetException {
-            return methodCall.invoke(method, target);
-        }
+        return results.toArray(new Method[results.size()]);
     }
 
     private static Match findAnExactMatchFrom(List<Match> matches, String command) {
@@ -137,15 +145,19 @@ public class CommandExecuter {
         return methods;
     }
 
-    private Method[] possibleMethods() {
-        List<Method> results = new ArrayList<Method>();
-        for (Method method : target.getClass().getMethods()) {
-            if (implementsTheMarkerInterface(method)
-                    && isPublicInstanceMethod(method)) {
-                results.add(method);
-            }
+    private static class Match {
+
+        public final MethodCall methodCall;
+        public final Method method;
+
+        public Match(MethodCall methodCall, Method method) {
+            this.methodCall = methodCall;
+            this.method = method;
         }
-        return results.toArray(new Method[results.size()]);
+
+        public Object invoke(CommandService target) throws IllegalAccessException, InvocationTargetException {
+            return methodCall.invoke(method, target);
+        }
     }
 
     private static boolean implementsTheMarkerInterface(Method method) {
@@ -155,18 +167,6 @@ public class CommandExecuter {
     private static boolean isPublicInstanceMethod(Method method) {
         return Modifier.isPublic(method.getModifiers())
                 && !Modifier.isStatic(method.getModifiers());
-    }
-
-    private List<MethodCall> possibleMethodCalls(String command) {
-        List<MethodCall> results = new ArrayList<MethodCall>();
-        String[] words = separateWords(command);
-        for (int i = words.length; i > 0; i--) {
-            String methodName = combineToMethodName(words, i);
-            if (methodName != null) {
-                results.add(new MethodCall(methodName, words, i, words.length - i, provider));
-            }
-        }
-        return results;
     }
 
     private static String combineToMethodName(String[] words, int wordsFromStart) {
