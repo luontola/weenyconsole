@@ -61,15 +61,8 @@ public class CommandExecuter {
             if (commandWords.length == 0) {
                 return null;
             }
-            List<Match> matches = new ArrayList<Match>();
-            for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
-                for (Method method : possibleMethods()) {
-                    if (methodCall.matches(method)) {
-                        matches.add(new Match(methodCall, method));
-                    }
-                }
-            }
-            Match match = exactMatch(matches, command);
+            List<Match> matches = findAllMatchesFor(commandWords);
+            Match match = findAnExactMatchFrom(matches, command);
             return match.invoke(target);
 
         } catch (CommandExecutionException e) {
@@ -83,6 +76,24 @@ public class CommandExecuter {
             e.printStackTrace(); // should never happen - caused by a bug in this program
             throw new CommandExecutionException(command, e);
         }
+    }
+
+    private List<Match> findAllMatchesFor(String[] commandWords) {
+        List<Match> matches = new ArrayList<Match>();
+        for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
+            matches.addAll(matchesWithPossibleMethods(methodCall));
+        }
+        return matches;
+    }
+
+    private List<Match> matchesWithPossibleMethods(MethodCall methodCall) {
+        List<Match> matches = new ArrayList<Match>();
+        for (Method method : possibleMethods()) {
+            if (methodCall.matches(method)) {
+                matches.add(new Match(methodCall, method));
+            }
+        }
+        return matches;
     }
 
     private static class Match {
@@ -100,7 +111,7 @@ public class CommandExecuter {
         }
     }
 
-    private static Match exactMatch(List<Match> matches, String command) {
+    private static Match findAnExactMatchFrom(List<Match> matches, String command) {
         if (matches.size() == 1) {
             return matches.get(0);
         }
