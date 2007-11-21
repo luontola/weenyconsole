@@ -1,5 +1,8 @@
 package net.orfjackal.weenyconsole;
 
+import net.orfjackal.weenyconsole.exceptions.InvalidSourceValueException;
+import net.orfjackal.weenyconsole.exceptions.TargetTypeNotSupportedException;
+
 /**
  * @author Esko Luontola
  * @since 4.8.2007

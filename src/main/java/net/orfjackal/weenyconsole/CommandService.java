@@ -8,4 +8,5 @@ package net.orfjackal.weenyconsole;
  * @since 2.8.2007
  */
 public interface CommandService {
+
 }

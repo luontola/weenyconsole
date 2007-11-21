@@ -1,4 +1,4 @@
-package net.orfjackal.weenyconsole;
+package net.orfjackal.weenyconsole.exceptions;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -44,6 +44,7 @@ public class AmbiguousMethodsException extends CommandExecutionException {
     }
 
     private static class MethodComparator implements Comparator<Method> {
+
         public int compare(Method m1, Method m2) {
             int cmp = m1.getName().compareTo(m2.getName());
             if (cmp != 0) {

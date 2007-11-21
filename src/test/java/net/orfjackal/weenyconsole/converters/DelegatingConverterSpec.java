@@ -4,8 +4,8 @@ import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
 import net.orfjackal.weenyconsole.ConversionService;
-import net.orfjackal.weenyconsole.InvalidSourceValueException;
-import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
+import net.orfjackal.weenyconsole.exceptions.InvalidSourceValueException;
+import net.orfjackal.weenyconsole.exceptions.TargetTypeNotSupportedException;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 

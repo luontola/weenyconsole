@@ -1,5 +1,7 @@
 package net.orfjackal.weenyconsole;
 
+import net.orfjackal.weenyconsole.exceptions.ConversionFailedException;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -3,8 +3,8 @@ package net.orfjackal.weenyconsole.converters;
 import jdave.Block;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import net.orfjackal.weenyconsole.ConversionFailedException;
 import net.orfjackal.weenyconsole.Converter;
+import net.orfjackal.weenyconsole.exceptions.ConversionFailedException;
 import org.junit.runner.RunWith;
 
 import java.awt.*;

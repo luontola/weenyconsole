@@ -2,8 +2,8 @@ package net.orfjackal.weenyconsole.converters;
 
 import net.orfjackal.weenyconsole.ConversionService;
 import net.orfjackal.weenyconsole.Converter;
-import net.orfjackal.weenyconsole.InvalidSourceValueException;
-import net.orfjackal.weenyconsole.TargetTypeNotSupportedException;
+import net.orfjackal.weenyconsole.exceptions.InvalidSourceValueException;
+import net.orfjackal.weenyconsole.exceptions.TargetTypeNotSupportedException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

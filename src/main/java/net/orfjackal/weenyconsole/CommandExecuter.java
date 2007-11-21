@@ -1,6 +1,7 @@
 package net.orfjackal.weenyconsole;
 
 import net.orfjackal.weenyconsole.converters.*;
+import net.orfjackal.weenyconsole.exceptions.*;
 
 import javax.lang.model.SourceVersion;
 import java.lang.reflect.InvocationTargetException;
@@ -85,6 +86,7 @@ public class CommandExecuter {
     }
 
     private static class Match {
+
         public final MethodCall methodCall;
         public final Method method;
 

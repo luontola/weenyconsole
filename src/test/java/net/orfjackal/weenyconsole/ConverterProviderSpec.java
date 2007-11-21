@@ -6,6 +6,9 @@ import jdave.junit4.JDaveRunner;
 import net.orfjackal.weenyconsole.converters.BooleanConverter;
 import net.orfjackal.weenyconsole.converters.DelegatingConverter;
 import net.orfjackal.weenyconsole.converters.StringConstructorConverter;
+import net.orfjackal.weenyconsole.exceptions.ConversionFailedException;
+import net.orfjackal.weenyconsole.exceptions.InvalidSourceValueException;
+import net.orfjackal.weenyconsole.exceptions.TargetTypeNotSupportedException;
 import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 

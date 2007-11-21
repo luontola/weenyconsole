@@ -1,4 +1,4 @@
-package net.orfjackal.weenyconsole;
+package net.orfjackal.weenyconsole.exceptions;
 
 /**
  * @author Esko Luontola
