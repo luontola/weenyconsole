@@ -57,11 +57,10 @@ public class CommandExecuter {
      */
     public Object execute(String command) {
         try {
-            String[] commandWords = separateWords(command);
-            if (commandWords.length == 0) {
+            if (command.trim().length() == 0) {
                 return null;
             }
-            List<Match> matches = findAllMatchesFor(commandWords);
+            List<Match> matches = findAllMatchesFor(command);
             Match match = findAnExactMatchFrom(matches, command);
             return match.invoke(target);
 
@@ -78,9 +77,9 @@ public class CommandExecuter {
         }
     }
 
-    private List<Match> findAllMatchesFor(String[] commandWords) {
+    private List<Match> findAllMatchesFor(String command) {
         List<Match> matches = new ArrayList<Match>();
-        for (MethodCall methodCall : possibleMethodCalls(commandWords)) {
+        for (MethodCall methodCall : possibleMethodCalls(command)) {
             matches.addAll(matchesWithPossibleMethods(methodCall));
         }
         return matches;
@@ -136,14 +135,14 @@ public class CommandExecuter {
     }
 
     private Method[] possibleMethods() {
-        List<Method> result = new ArrayList<Method>();
+        List<Method> results = new ArrayList<Method>();
         for (Method method : target.getClass().getMethods()) {
             if (implementsTheMarkerInterface(method)
                     && isPublicInstanceMethod(method)) {
-                result.add(method);
+                results.add(method);
             }
         }
-        return result.toArray(new Method[result.size()]);
+        return results.toArray(new Method[results.size()]);
     }
 
     private static boolean implementsTheMarkerInterface(Method method) {
@@ -155,15 +154,16 @@ public class CommandExecuter {
                 && !Modifier.isStatic(method.getModifiers());
     }
 
-    private List<MethodCall> possibleMethodCalls(String[] words) {
-        List<MethodCall> possibilities = new ArrayList<MethodCall>();
+    private List<MethodCall> possibleMethodCalls(String command) {
+        List<MethodCall> results = new ArrayList<MethodCall>();
+        String[] words = separateWords(command);
         for (int i = words.length; i > 0; i--) {
             String methodName = combineToMethodName(words, i);
             if (methodName != null) {
-                possibilities.add(new MethodCall(methodName, words, i, words.length - i, provider));
+                results.add(new MethodCall(methodName, words, i, words.length - i, provider));
             }
         }
-        return possibilities;
+        return results;
     }
 
     private static String combineToMethodName(String[] words, int wordsFromStart) {
@@ -227,6 +227,7 @@ public class CommandExecuter {
         if (word.length() > 0) {
             finishedWords.add(word);
         }
+        assert finishedWords.size() > 0;
         return finishedWords.toArray(new String[finishedWords.size()]);
     }
 
