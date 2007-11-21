@@ -78,11 +78,23 @@ public class CommandExecuter {
     }
 
     private Match matchFor(String command) {
-        List<Match> matches = findAllMatchesFor(command);
-        return findAnExactMatchFrom(matches, command);
+        List<Match> matches = allMatchesFor(command);
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+        if (matches.size() == 0) {
+            throw new CommandNotFoundException(command);
+        }
+        int lengthOfFirst = matches.get(0).method.getName().length();
+        int lengthOfSecond = matches.get(1).method.getName().length();
+        if (lengthOfFirst > lengthOfSecond) {
+            // higher priority for longer names
+            return matches.get(0);
+        }
+        throw new AmbiguousMethodsException(command, methodsFrom(matches));
     }
 
-    private List<Match> findAllMatchesFor(String command) {
+    private List<Match> allMatchesFor(String command) {
         List<Match> matches = new ArrayList<Match>();
         for (MethodCall methodCall : possibleMethodCalls(command)) {
             matches.addAll(matchesWithPossibleMethods(methodCall));
@@ -121,22 +133,6 @@ public class CommandExecuter {
             }
         }
         return results.toArray(new Method[results.size()]);
-    }
-
-    private static Match findAnExactMatchFrom(List<Match> matches, String command) {
-        if (matches.size() == 1) {
-            return matches.get(0);
-        }
-        if (matches.size() == 0) {
-            throw new CommandNotFoundException(command);
-        }
-        int lengthOfFirst = matches.get(0).method.getName().length();
-        int lengthOfSecond = matches.get(1).method.getName().length();
-        if (lengthOfFirst > lengthOfSecond) {
-            // higher priority for longer names
-            return matches.get(0);
-        }
-        throw new AmbiguousMethodsException(command, methodsFrom(matches));
     }
 
     private static List<Method> methodsFrom(List<Match> matches) {
