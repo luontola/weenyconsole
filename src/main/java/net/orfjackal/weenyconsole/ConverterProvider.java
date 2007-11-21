@@ -38,32 +38,47 @@ public class ConverterProvider implements ConversionService {
     }
 
     public Object valueOf(String sourceValue, Class<?> targetType) throws TargetTypeNotSupportedException, InvalidSourceValueException {
-        if (sourceValue == null) {
-            if (targetType.isPrimitive()) {
-                throw new InvalidSourceValueException(sourceValue, targetType);
-            }
+        if (convertsToNull(targetType, sourceValue)) {
             return null;
         }
-
-        // use the converter of targetType
         try {
             return convertUsing(converterFor(targetType), sourceValue, targetType);
         } catch (TargetTypeNotSupportedException e) {
             // FALLTHROUGH
         }
+        try {
+            return convertUsingConverterForSubclassOf(targetType, sourceValue);
+        } catch (TargetTypeNotSupportedException e) {
+            // FALLTHROUGH
+        }
+        return convertUsingConverterForSuperclassOf(targetType, sourceValue);
+    }
 
-        // use the converter of a subclass of targetType
+    private static boolean convertsToNull(Class<?> targetType, String sourceValue)
+            throws InvalidSourceValueException {
+        if (sourceValue == null) {
+            if (!targetType.isPrimitive()) {
+                return true;
+            }
+            throw new InvalidSourceValueException(sourceValue, targetType);
+        }
+        return false;
+    }
+
+    private Object convertUsingConverterForSubclassOf(Class<?> targetType, String sourceValue) throws InvalidSourceValueException, TargetTypeNotSupportedException {
         for (Class<?> clazz : supportedTargetTypes()) {
-            if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
-                try {
+            try {
+                if (targetType.isAssignableFrom(clazz) && !targetType.equals(clazz)) {
                     return convertUsing(converterFor(clazz), sourceValue, targetType);
-                } catch (TargetTypeNotSupportedException e) {
-                    // FALLTHROUGH
                 }
+            } catch (TargetTypeNotSupportedException e) {
+                // FALLTHROUGH
             }
         }
+        throw new TargetTypeNotSupportedException(sourceValue, targetType);
+    }
 
-        // use the converter of a superclass of targetType
+    private Object convertUsingConverterForSuperclassOf(Class<?> targetType, String sourceValue) throws InvalidSourceValueException, TargetTypeNotSupportedException {
         for (Class<?> clazz = targetType.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
             try {
                 return convertUsing(converterFor(clazz), sourceValue, targetType);
