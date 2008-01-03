@@ -40,4 +40,6 @@ public class ReadLineNumbersFromClassFile {
 
     // ASM: http://asm.objectweb.org/
     // - does not give easy access to line numbers
+
+    // More realted programs: http://aopalliance.sourceforge.net/motivations.html
 }
