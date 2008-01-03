@@ -33,13 +33,23 @@ public class ReadLineNumbersFromClassFile {
     }
 
     // TODO: try to use com.sun.org.apache.bcel.internal.classfile.ClassParser to get the line numbers of the code in Method classes
-    // - if it works, fix the sorting of SpecRunner (classes and methods)
-
-    // BCEL Maven: http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/bcel/bcel/5.2/
-    // - gives direct access to line number table, as shown in code above
-
+    // and if it works, fix the sorting of SpecRunner (classes and methods)
+    //
+    // BCEL: http://jakarta.apache.org/bcel/
+    // + gives direct access to line number table, as shown in code above
+    // http://repo1.maven.org/maven2/org/apache/bcel/bcel/5.2/
+    // bcel-5.2.jar   521K
+    //
     // ASM: http://asm.objectweb.org/
     // - does not give easy access to line numbers
-
+    //
+    // CGLIB: http://cglib.sourceforge.net/
+    // - nope, only info on method signatures etc.
+    //
+    // Javassist: http://www.csg.is.titech.ac.jp/~chiba/javassist/
+    // + yes: javassist.bytecode.MethodInfo.getLineNumber
+    // http://repo1.maven.org/maven2/jboss/javassist/3.6.ga/
+    // javassist-3.6.ga.jar   530K
+    //
     // More realted programs: http://aopalliance.sourceforge.net/motivations.html
 }
