@@ -7,7 +7,7 @@ import com.sun.org.apache.bcel.internal.util.ClassLoaderRepository;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class Test {
+public class ReadLineNumbersFromClassFile {
 
     public static void main(String[] args) throws IOException {
         JavaClass javaClass;
@@ -15,8 +15,8 @@ public class Test {
         // ClassParser parser = new ClassParser("D:\\DOCUMENTS\\PROGRAMS\\OMAT\\weenyconsole\\target\\test-classes\\Test.class");
         // javaClass = parser.parse();
 
-        Repository.setRepository(new ClassLoaderRepository(Test.class.getClassLoader()));
-        javaClass = Repository.lookupClass(Test.class.getName());
+        Repository.setRepository(new ClassLoaderRepository(ReadLineNumbersFromClassFile.class.getClassLoader()));
+        javaClass = Repository.lookupClass(ReadLineNumbersFromClassFile.class.getName());
 
         System.out.println("javaClass = " + javaClass);
 
@@ -36,4 +36,8 @@ public class Test {
     // - if it works, fix the sorting of SpecRunner (classes and methods)
 
     // BCEL Maven: http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/bcel/bcel/5.2/
+    // - gives direct access to line number table, as shown in code above
+
+    // ASM: http://asm.objectweb.org/
+    // - does not give easy access to line numbers
 }
