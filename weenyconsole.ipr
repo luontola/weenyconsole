@@ -307,5 +307,8 @@
       <setting name="state" value="2" />
     </Base>
   </component>
+  <UsedPathMacros>
+    <macro name="M2_REPO" />
+  </UsedPathMacros>
 </project>
 
