@@ -22,6 +22,14 @@ import java.math.BigInteger;
 @RunWith(JDaveRunner.class)
 public class ConverterProviderSpec extends Specification<ConverterProvider> {
 
+    private void addConverterToProvider(final ConverterProvider provider, final Converter converter, final Class<?> targetType) {
+        checking(new Expectations() {{
+            one (converter).supportedTargetType(); will(returnValue(targetType));
+            one (converter).setProvider(provider);
+        }});
+        provider.addConverter(converter);
+    }
+
     public class ProviderWithNoConverters {
 
         private ConverterProvider provider;
@@ -77,14 +85,8 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             provider = new ConverterProvider();
             integerConverter = mock(Converter.class, "integerConverter");
             doubleConverter = mock(Converter.class, "doubleConverter");
-            checking(new Expectations() {{
-                one (integerConverter).supportedTargetType(); will(returnValue(Integer.class));
-                one (integerConverter).setProvider(provider);
-                one (doubleConverter ).supportedTargetType(); will(returnValue(Double.class));
-                one (doubleConverter ).setProvider(provider);
-            }});
-            provider.addConverter(integerConverter);
-            provider.addConverter(doubleConverter);
+            addConverterToProvider(provider, integerConverter, Integer.class);
+            addConverterToProvider(provider, doubleConverter, Double.class);
             return provider;
         }
 
@@ -134,17 +136,9 @@ public class ConverterProviderSpec extends Specification<ConverterProvider> {
             superConverter = mock(Converter.class, "superConverter");
             exactConverter = mock(Converter.class, "exactConverter");
             subConverter = mock(Converter.class, "subConverter");
-            checking(new Expectations() {{
-                one (superConverter).supportedTargetType(); will(returnValue(Object.class));
-                one (superConverter).setProvider(provider);
-                one (exactConverter).supportedTargetType(); will(returnValue(Number.class));
-                one (exactConverter).setProvider(provider);
-                one (subConverter  ).supportedTargetType(); will(returnValue(Integer.class));
-                one (subConverter  ).setProvider(provider);
-            }});
-            provider.addConverter(subConverter);
-            provider.addConverter(exactConverter);
-            provider.addConverter(superConverter);
+            addConverterToProvider(provider, superConverter, Object.class);
+            addConverterToProvider(provider, exactConverter, Number.class);
+            addConverterToProvider(provider, subConverter, Integer.class);
             return provider;
         }
 
