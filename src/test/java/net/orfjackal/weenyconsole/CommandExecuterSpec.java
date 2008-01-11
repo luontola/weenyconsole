@@ -256,8 +256,8 @@ public class CommandExecuterSpec extends Specification<Object> {
             exec.execute("primitives true -128 c 32767 2147483647 9223372036854775807 1.123 2.456");
             specify(target.primBoolean, should.equal(Boolean.TRUE));
             specify(target.primByte, should.equal(Byte.MIN_VALUE));
-            specify(target.primChar, should.equal('c'));
-            specify(target.primShort, should.equal(Short.MAX_VALUE));
+            specify(target.primChar, should.equal(Character.valueOf('c')));
+            specify(target.primShort, should.equal(Short.valueOf(Short.MAX_VALUE)));
             specify(target.primInt, should.equal(Integer.MAX_VALUE));
             specify(target.primLong, should.equal(Long.MAX_VALUE));
             specify(target.primFloat, should.equal(1.123F));
