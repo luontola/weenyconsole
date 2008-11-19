@@ -11,6 +11,15 @@
     <name>WeenyConsole</name>
     <description>Command line interface which executes methods on a POJO</description>
     <url>http://www.orfjackal.net</url>
+    <inceptionYear>2007</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>BSD License</name>
+            <url>http://www.opensource.org/licenses/bsd-license.php</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <name>Esko Luontola</name>
