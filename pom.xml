@@ -10,7 +10,7 @@
 
     <name>WeenyConsole</name>
     <description>Command line interface which executes methods on a POJO</description>
-    <url>http://www.orfjackal.net</url>
+    <url>http://github.com/orfjackal/weenyconsole</url>
     <inceptionYear>2007</inceptionYear>
 
     <licenses>
@@ -22,9 +22,16 @@
 
     <developers>
         <developer>
+            <id>orfjackal</id>
             <name>Esko Luontola</name>
+            <url>http://www.orfjackal.net/</url>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/orfjackal/weenyconsole.git</connection>
+        <url>http://github.com/orfjackal/weenyconsole</url>
+    </scm>
 
     <repositories>
         <repository>
